@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Jobs;
+using UnityEditor;
+
 
 //using Unity.VisualScripting;
 using UnityEngine;
@@ -15,7 +17,12 @@ public class EnemyManager : MonoBehaviour
 
     public static Vector3[] node_grid; // this is the path that the enemies will follow
     public Transform node_parent; // this is the parent object that holds the nodes
-    
+
+    public GridGenerator gridGenerator; // Reference to GridGenerator
+    ////
+    [Header("Enemy Spawn Settings")]
+    public int nextEnemyID = 1; // Public field to dynamically set the next enemy ID
+    ////
 
     void Start()
     {
@@ -23,11 +30,26 @@ public class EnemyManager : MonoBehaviour
         enemies_to_kill_queue = new Queue<Enemy>();
         Summoner.Init();
 
-        node_grid = new Vector3[node_parent.childCount]; // the size of the array is the number of children in the node_parent object
 
-        for (int i = 0; i < node_grid.Length; i++) 
+        // Fetch path from GridGenerator
+        List<Vector2Int> pathPositions = gridGenerator.pathPositions;
+        if (pathPositions == null || pathPositions.Count == 0)
         {
-            node_grid[i] = node_parent.GetChild(i).position; // get the position of the child and add it to the array
+            Debug.LogError("Path generation failed. Ensure GridGenerator is set up properly.");
+            return;
+        }
+        // Convert path positions to world positions for enemies
+        node_grid = new Vector3[pathPositions.Count];
+        //node_grid = new Vector3[node_parent.childCount]; // the size of the array is the number of children in the node_parent object
+
+        //for (int i = 0; i < node_grid.Length; i++) 
+        //{
+        //    node_grid[i] = node_parent.GetChild(i).position; // get the position of the child and add it to the array
+        //}
+        for (int i = 0; i < pathPositions.Count; i++)
+        {
+            Vector2Int gridPos = pathPositions[i];
+            node_grid[i] = new Vector3(gridPos.x * gridGenerator.cellSize, 0, gridPos.y * gridGenerator.cellSize);
         }
 
 
@@ -48,8 +70,18 @@ public class EnemyManager : MonoBehaviour
     {
         while (true)
         {
-            Summon_test(); // Call the summon test function
-            float waitTime = GetRandomSummonTime(); // Get a new random time
+            //// Stop summoning if nextEnemyID is 0
+            if (nextEnemyID == 0)
+            {
+                Debug.Log("Stopped summoning enemies as ID is 0.");
+                // loop without summoning
+                yield return new WaitForSeconds(1);
+            }
+            enqueue_enemy_to_spawn(nextEnemyID); // Add the next enemy ID to the queue
+            float waitTime = GetRandomSummonTime();
+
+            //Summon_test(); // Call the summon test function
+            //float waitTime = GetRandomSummonTime(); // Get a new random time
             yield return new WaitForSeconds(waitTime); // Wait for that time before the next summon
         }
     }
@@ -64,10 +96,10 @@ public class EnemyManager : MonoBehaviour
     //        Summoner.remove_enemy(Summoner.enemies_alive[Random.Range(0, Summoner.enemies_alive.Count)]);
     //    }
     //}
-    void Summon_test()
-    {
-        enqueue_enemy_to_spawn(1); // 1 is the id we gave to the enemy in the Enemy_spawn_data scriptable object we created
-    }
+    //void Summon_test()
+    //{
+    //    enqueue_enemy_to_spawn(1); // 1 is the id we gave to the enemy in the Enemy_spawn_data scriptable object we created
+    //}
 
 
     IEnumerator EnemyLoop()
@@ -129,10 +161,13 @@ public class EnemyManager : MonoBehaviour
         for (int i = 0; i < Summoner.enemies_alive.Count; i++)
         {
             node_indexes[i] = Summoner.enemies_alive[i].Node_index;
+
             enemy_speeds[i] = Summoner.enemies_alive[i].speed;
 
             // check if the enemy is flying
             is_flying[i] = Summoner.enemies_alive[i].name.Contains("Jet");
+            // also flies if contains drone
+            is_flying[i] = is_flying[i] || Summoner.enemies_alive[i].name.Contains("Drone");
         }
 
 
@@ -273,6 +308,11 @@ public struct MoveJob : IJobParallelForTransform
                 // change current position y to 2 and randomize x and z a bit
                 transform.position = new Vector3(transform.position.x, 2, transform.position.z);
 
+            }
+            else
+            {
+                //change the y in move_direction to 0
+                move_direction.y = 0;
             }
 
 
