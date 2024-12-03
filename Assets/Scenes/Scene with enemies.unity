@@ -271,8 +271,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774442bfe5e4c4b41a5c6e2eb9310592, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  node_parent: {fileID: 0}
-  gridGenerator: {fileID: 2033146971}
+  gridGenerator: {fileID: 0}
   nextEnemyID: 1
 --- !u!1 &1423806807
 GameObject:
@@ -377,7 +376,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2033146972}
-  - component: {fileID: 2033146971}
+  - component: {fileID: 2033146973}
   m_Layer: 0
   m_Name: GridParent
   m_TagString: Untagged
@@ -385,22 +384,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2033146971
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2033146970}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 59824d0f0c47ab446b8a49d7f852c02c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cellPrefab: {fileID: 5269230982396337874, guid: 28bfc7bb875feb040989aab377c9b5e7, type: 3}
-  gridSizeX: 16
-  gridSizeZ: 16
-  cellSize: 1.1
 --- !u!4 &2033146972
 Transform:
   m_ObjectHideFlags: 0
@@ -416,6 +399,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2033146973
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2033146970}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59824d0f0c47ab446b8a49d7f852c02c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cellPrefab: {fileID: 5269230982396337874, guid: 28bfc7bb875feb040989aab377c9b5e7, type: 3}
+  gridSizeX: 16
+  gridSizeZ: 16
+  cellSize: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
