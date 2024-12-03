@@ -26,18 +26,32 @@ public class EnemyManager : MonoBehaviour
 
     void Start()
     {
-        enemies_to_spawn = new Queue<int>();
-        enemies_to_kill_queue = new Queue<Enemy>();
-        Summoner.Init();
+        if (gridGenerator == null)
+        {
+            Debug.LogError("GridGenerator is not assigned.");
+            return;
+        }
+        Debug.Log("Initializing grid and path...");
+        gridGenerator.InitializeGrid();
 
-
-        // Fetch path from GridGenerator
+        // Fetch path after reinitialization
         List<Vector2Int> pathPositions = gridGenerator.pathPositions;
         if (pathPositions == null || pathPositions.Count == 0)
         {
             Debug.LogError("Path generation failed. Ensure GridGenerator is set up properly.");
             return;
         }
+
+        Debug.Log($"Path fetched with {pathPositions.Count} steps.");
+
+
+
+        enemies_to_spawn = new Queue<int>();
+        enemies_to_kill_queue = new Queue<Enemy>();
+        Summoner.Init();
+
+
+
         // Convert path positions to world positions for enemies
         node_grid = new Vector3[pathPositions.Count];
         //node_grid = new Vector3[node_parent.childCount]; // the size of the array is the number of children in the node_parent object
@@ -65,6 +79,17 @@ public class EnemyManager : MonoBehaviour
     }
 
 
+    void Awake()
+    {
+        if (gridGenerator == null)
+        {
+            gridGenerator = FindObjectOfType<GridGenerator>();
+            if (gridGenerator == null)
+            {
+                Debug.LogError("GridGenerator not found! Please ensure it's attached in the scene.");
+            }
+        }
+    }
 
     IEnumerator SummonEnemyLoop()
     {
