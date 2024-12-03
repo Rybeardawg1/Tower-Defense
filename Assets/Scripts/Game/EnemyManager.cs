@@ -16,7 +16,7 @@ public class EnemyManager : MonoBehaviour
     private bool Endloop = false;
 
     public static Vector3[] node_grid; // this is the path that the enemies will follow
-    public Transform node_parent; // this is the parent object that holds the nodes
+    // public Transform node_parent; // this is the parent object that holds the nodes
 
     public GridGenerator gridGenerator; // Reference to GridGenerator
     ////
@@ -61,7 +61,7 @@ public class EnemyManager : MonoBehaviour
         // make call time random
         //InvokeRepeating("Summon_test", 0, 1);
         // i want a random time between 0.7 and 1 seconds so we need a coroutine
-        StartCoroutine(SummonEnemyLoop()); 
+        StartCoroutine(SummonEnemyLoop());
     }
 
 
@@ -144,7 +144,7 @@ public class EnemyManager : MonoBehaviour
         // Implement enemy movement and AI updates here
         NativeArray<int> node_indexes = new NativeArray<int>(Summoner.enemies_alive.Count, Allocator.TempJob); // This is for storing the node index of each enemy
         NativeArray<float> enemy_speeds = new NativeArray<float>(Summoner.enemies_alive.Count, Allocator.TempJob); // This is for storing the speed of each enemy
-        NativeArray<Vector3>  to_use_nodes = new NativeArray<Vector3>(node_grid, Allocator.TempJob); // This is for storing the nodes that the enemies will follow (get from the generated map?)
+        NativeArray<Vector3> to_use_nodes = new NativeArray<Vector3>(node_grid, Allocator.TempJob); // This is for storing the nodes that the enemies will follow (get from the generated map?)
         TransformAccessArray enemy_access = new TransformAccessArray(Summoner.enemies_alive_transform.ToArray()); // This is for storing the transforms of the enemies
 
         // create array just to recognize flying enemies
@@ -287,7 +287,7 @@ public struct MoveJob : IJobParallelForTransform
     public void Execute(int index, TransformAccess transform)
     {
         // Adjust y position for "Jet" enemies
-        
+
         //Debug.Log($"Moving enemy at index {index}");
         // check if the enemy has reached the end of the path
         if (node_index[index] >= node_grid.Length) // so only move the enemy if it has not reached the end of the path
@@ -329,7 +329,7 @@ public struct MoveJob : IJobParallelForTransform
             {
                 // rotation speed is based on the angle between the forward vector and the direction to the next node
                 float rotation_speed = 0.05f * Vector3.Angle(Vector3.forward, direction) / 180; // 0.1f is the base rotation speed
-                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), rotation_speed); 
+                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), rotation_speed);
 
             }
 
