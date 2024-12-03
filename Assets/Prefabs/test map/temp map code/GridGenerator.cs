@@ -34,6 +34,7 @@ public class GridGenerator : MonoBehaviour
     void GeneratePath()
     {
         pathPositions = new List<Vector2Int>();
+        Debug.Log("Starting path generation...");
 
         // Start path at random position on the left edge
         Vector2Int currentPosition = new Vector2Int(0, Random.Range(0, gridSizeZ));
@@ -60,6 +61,15 @@ public class GridGenerator : MonoBehaviour
                 cell.GetComponent<Renderer>().material.color = new Color(0.5f, 0.35f, 0.05f);
 
             }
+        }
+
+        if (pathPositions.Count == 0)
+        {
+            Debug.LogError("Path generation failed! No valid path created.");
+        }
+        else
+        {
+            Debug.Log($"Path generated with {pathPositions.Count} positions.");
         }
     }
 
