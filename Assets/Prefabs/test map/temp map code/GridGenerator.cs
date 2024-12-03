@@ -33,7 +33,15 @@ public class GridGenerator : MonoBehaviour
 
     void GeneratePath()
     {
-        pathPositions = new List<Vector2Int>();
+        if (pathPositions == null)
+        {
+            pathPositions = new List<Vector2Int>();
+        }
+        else
+        {
+            pathPositions.Clear(); // Clear the list for a fresh generation
+        }
+
         Debug.Log("Starting path generation...");
 
         // Start path at random position on the left edge
@@ -44,7 +52,10 @@ public class GridGenerator : MonoBehaviour
         {
             List<Vector2Int> nextSteps = GetValidSteps(currentPosition);
             if (nextSteps.Count == 0)
-                break; // No valid moves, stop generation (unlikely due to grid size)
+            {
+                Debug.LogError("Path generation terminated early due to no valid steps.");
+                break;
+            }
 
             currentPosition = nextSteps[Random.Range(0, nextSteps.Count)];
             pathPositions.Add(currentPosition);
