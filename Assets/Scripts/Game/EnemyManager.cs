@@ -91,6 +91,20 @@ public class EnemyManager : MonoBehaviour
         }
     }
 
+    public void PlaceTower(Vector2Int position)
+    {
+        if (gridGenerator.towerPlacementZones.Contains(position))
+        {
+            Debug.Log($"Placing tower at {position}");
+            // Logic to place the tower, e.g., instantiate a prefab
+        }
+        else
+        {
+            Debug.LogError("Invalid position for tower placement!");
+        }
+    }
+
+
     IEnumerator SummonEnemyLoop()
     {
         while (true)

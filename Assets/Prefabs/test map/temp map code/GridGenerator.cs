@@ -11,12 +11,14 @@ public class GridGenerator : MonoBehaviour
     //private List<Vector2Int> pathPositions;
     public List<Vector2Int> pathPositions { get; private set; } // Expose the path positions
     private Dictionary<Vector2Int, GameObject> gridCells = new Dictionary<Vector2Int, GameObject>(); // To track cells for coloring
+    public List<Vector2Int> towerPlacementZones { get; private set; }
 
 
     void Start()
     {
         GenerateGrid();
         GeneratePath();
+
     }
 
     // void GenerateGrid()
@@ -48,6 +50,9 @@ public class GridGenerator : MonoBehaviour
                 gridCells[new Vector2Int(x, z)] = cell;
             }
         }
+
+        
+
     }
 
     // public void InitializeGrid()
@@ -72,6 +77,26 @@ public class GridGenerator : MonoBehaviour
         gridCells.Clear();
         GenerateGrid();
         GeneratePath();
+        foreach (Vector2Int pos in pathPositions)
+        {
+            if (gridCells.TryGetValue(pos, out GameObject cell))
+            {
+                cell.GetComponent<Renderer>().material.color = Color.blue; // Blue for the path
+            }
+        }
+        VisualizeTowerZones();
+
+    }
+
+    void VisualizeTowerZones()
+    {
+        foreach (Vector2Int towerCell in towerPlacementZones)
+        {
+            if (gridCells.TryGetValue(towerCell, out GameObject cell))
+            {
+                cell.GetComponent<Renderer>().material.color = Color.yellow; // Yellow for tower zones
+            }
+        }
     }
 
 
@@ -134,30 +159,67 @@ public class GridGenerator : MonoBehaviour
     void GeneratePath()
     {
         pathPositions = new List<Vector2Int>();
+        towerPlacementZones = new List<Vector2Int>();
 
         // Start path at random position on the left edge
         Vector2Int currentPosition = new Vector2Int(0, Random.Range(0, gridSizeZ));
         pathPositions.Add(currentPosition);
 
-        while (currentPosition.x < gridSizeX - 1) // Until we reach the other side
+        while (currentPosition.x < gridSizeX - 1)
         {
             List<Vector2Int> nextSteps = GetValidSteps(currentPosition);
             if (nextSteps.Count == 0)
-                break; // No valid moves, stop generation (unlikely due to grid size)
+            {
+                Debug.LogError("No valid steps available. Path generation failed.");
+                break;
+            }
 
             currentPosition = nextSteps[Random.Range(0, nextSteps.Count)];
             pathPositions.Add(currentPosition);
         }
 
-        // Color the path brown
+        // Add adjacent cells to towerPlacementZones
         foreach (Vector2Int pos in pathPositions)
         {
-            if (gridCells.TryGetValue(pos, out GameObject cell))
+            AddAdjacentCells(pos);
+        }
+
+        Debug.Log($"Path generated with {pathPositions.Count} positions.");
+        Debug.Log($"Tower placement zones: {towerPlacementZones.Count}");
+    }
+
+    void AddAdjacentCells(Vector2Int position)
+    {
+        Vector2Int[] directions = {
+        new Vector2Int(1, 0),  // Right
+        new Vector2Int(-1, 0), // Left
+        new Vector2Int(0, 1),  // Up
+        new Vector2Int(0, -1)  // Down
+    };
+
+        foreach (Vector2Int dir in directions)
+        {
+            Vector2Int adjacentCell = position + dir;
+
+            // Add sparsity by skipping some cells randomly
+            if (Random.Range(0, 4) == 0) 
+                continue;
+
+            if (IsValidCell(adjacentCell) &&
+                !pathPositions.Contains(adjacentCell) &&
+                !towerPlacementZones.Contains(adjacentCell))
             {
-                cell.GetComponent<Renderer>().material.color = new Color(0.5f, 0.35f, 0.05f); // Dirt brown for path
+                towerPlacementZones.Add(adjacentCell);
             }
         }
     }
+
+
+    bool IsValidCell(Vector2Int cell)
+    {
+        return cell.x >= 0 && cell.x < gridSizeX && cell.y >= 0 && cell.y < gridSizeZ;
+    }
+
 
 
 
