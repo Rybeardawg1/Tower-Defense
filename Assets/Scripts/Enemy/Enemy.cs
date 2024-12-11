@@ -17,7 +17,9 @@ public class Enemy : MonoBehaviour
     // initialize 
     public void Init()
     {
+        max_health = 20;
         health = max_health;
+        Debug.Log($"{gameObject.name} initialized with {health} health.");
 
         // set the position of the enemy to the first node
         transform.position = EnemyManager.node_grid[0];
@@ -62,6 +64,14 @@ public class Enemy : MonoBehaviour
     //}
 
 
+    public void TakeDamage(int damage)
+    {   
+        health -= damage;
+        if (health <= 0)
+        {
+            Destroy(gameObject); // Destroy enemy when health reaches zero
+        }
+    }
 
 
 }
