@@ -8,20 +8,19 @@ public class Enemy : MonoBehaviour
 {
     public int Node_index; // for the pathfinding
     public float max_health;
-    public float health;
     public float speed;
     public int ID;
-    //public Animator animator;
+    private Animator animation_controller;
+    private CharacterController character_controller;
+    private float health;
 
     // initialize 
     public void Init()
     {
-        health = max_health;
 
         // set the position of the enemy to the first node
         transform.position = EnemyManager.node_grid[0];
         Node_index = 0; // to reset the node index to the first node when the enemy is spawned
-
 
         // Automatically find the Animator on this GameObject
         //if (animator == null) // Check if it's unassigned
@@ -46,6 +45,23 @@ public class Enemy : MonoBehaviour
         //}
 
 
+    }
+
+    void Start() {
+        health = max_health;
+        animation_controller = GetComponent<Animator>();
+        character_controller = GetComponent<CharacterController>();
+
+    }
+
+    void Update() {
+        if (health == 0) {
+            animation_controller.SetBool("Die", true);
+            animation_controller.SetBool("Walk", false);
+        } else {
+            animation_controller.SetBool("Die", false);
+            animation_controller.SetBool("Walk", true);
+        }
     }
 
     //public void StartMoving()

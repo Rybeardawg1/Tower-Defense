@@ -170,7 +170,6 @@ public class EnemyManager : MonoBehaviour
             {
                 int enemy_ID = enemies_to_spawn.Dequeue();
                 Summoner.spawn_enemy(enemy_ID);
-                Debug.Log($"Spawned enemy with ID {enemy_ID}");
             }
         }
 
