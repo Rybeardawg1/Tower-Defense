@@ -11,7 +11,6 @@ public class Enemy : MonoBehaviour
     public float health;
     public float speed;
     public int ID;
-
     //public Animator animator;
 
     // initialize 
@@ -60,6 +59,7 @@ public class Enemy : MonoBehaviour
     //        Debug.LogError("No animator found on enemy");
     //    }
     //}
+
 
 
 

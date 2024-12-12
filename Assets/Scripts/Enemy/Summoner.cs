@@ -68,7 +68,6 @@ public class Summoner : MonoBehaviour
             Debug.LogError("Enemy ID " + Enimy_ID + " not found");
             return null;
         }
-
         enemies_alive_transform.Add(Spawned_enemy.transform);// add the enemy to the list of transforms of enemies alive for movement
         enemies_alive.Add(Spawned_enemy);// add the enemy to the list of enemies alive
         Spawned_enemy.ID = Enimy_ID;// set the ID of the enemy

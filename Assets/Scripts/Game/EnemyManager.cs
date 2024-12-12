@@ -121,12 +121,12 @@ public class EnemyManager : MonoBehaviour
 
             //Summon_test(); // Call the summon test function
             //float waitTime = GetRandomSummonTime(); // Get a new random time
-            yield return new WaitForSeconds(waitTime); // Wait for that time before the next summon
+            yield return new WaitForSeconds(3f); // Wait for that time before the next summon
         }
     }
     float GetRandomSummonTime()
     {
-        return Random.Range(0.7f, 1f); // not working
+        return Random.Range(0.7f, 3f); // not working
     }
     //void remove_test()
     //{
