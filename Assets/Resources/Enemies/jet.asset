@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: jet
   m_EditorClassIdentifier: 
   enemy_prefab: {fileID: 5274186811928592978, guid: ea52f0eb870c73940b97b59c0f0d3a97, type: 3}
-  Enemy_ID: 1
+  Enemy_ID: 3

@@ -354,11 +354,6 @@ public struct MoveJob : IJobParallelForTransform
             }
 
 
-
-
-
-
-
             transform.position = Vector3.MoveTowards(transform.position, move_direction, enemy_speed[index] * deltaTime);
 
             // Rotate the enemy to face the movement direction
@@ -368,6 +363,7 @@ public struct MoveJob : IJobParallelForTransform
                 // rotation speed is based on the angle between the forward vector and the direction to the next node
                 float rotation_speed = 0.05f * Vector3.Angle(Vector3.forward, direction) / 180; // 0.1f is the base rotation speed
                 transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), rotation_speed);
+                // direction = move_direction;
 
             }
 
@@ -382,7 +378,7 @@ public struct MoveJob : IJobParallelForTransform
                 //Debug.Log($"Enemy reached node {node_index[index]}");
 
                 // reset the rotation of the enemy
-                transform.rotation = Quaternion.identity;
+                // transform.rotation = Quaternion.identity;
 
             }
 

@@ -10,6 +10,7 @@ public class Enemy : MonoBehaviour
     public float max_health;
     public float speed;
     public int ID;
+    public bool isAlive = true;
     private Animator animation_controller;
     private CharacterController character_controller;
     private float health;
@@ -51,11 +52,12 @@ public class Enemy : MonoBehaviour
         health = max_health;
         animation_controller = GetComponent<Animator>();
         character_controller = GetComponent<CharacterController>();
-
+        isAlive = true;
     }
 
     void Update() {
         if (health == 0) {
+            isAlive = false;
             animation_controller.SetBool("Die", true);
             animation_controller.SetBool("Walk", false);
         } else {
