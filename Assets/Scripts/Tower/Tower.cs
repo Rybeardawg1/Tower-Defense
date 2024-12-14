@@ -14,7 +14,7 @@ public class Tower : MonoBehaviour
     {
         fireCooldown -= Time.deltaTime;
 
-        // Find the closest enemy whose name starts with "Jet"
+        // Find the closest enemy
         GameObject target = FindClosestEnemy();
 
         if (target != null && fireCooldown <= 0f)
@@ -33,8 +33,8 @@ public class Tower : MonoBehaviour
 
         foreach (GameObject obj in allObjects)
         {
-            // Check if the object name starts with "Jet"
-            if (obj.name.StartsWith("Jet"))
+            //// Check if the object name is not null
+            if (obj.name.StartsWith("Jet") || obj.name.StartsWith("Orc"))
             {
                 float distance = Vector3.Distance(transform.position, obj.transform.position);
                 if (distance < closestDistance)
