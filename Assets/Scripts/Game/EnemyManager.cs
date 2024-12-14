@@ -177,106 +177,114 @@ public class EnemyManager : MonoBehaviour
 
     void UpdateEnemies()
     {
-        //Debug.Log($"Updating {Summoner.enemies_alive.Count} enemies.");
+        foreach (var enemy in Summoner.enemies_alive)
+        {
+            if (enemy.isAlive)
+            {
+                enemy.Perform_movement(); // Call the new method
+            }
+        }
+        ////Debug.Log($"Updating {Summoner.enemies_alive.Count} enemies.");
 
-        // Implement enemy movement and AI updates here
-        NativeArray<int> node_indexes = new NativeArray<int>(Summoner.enemies_alive.Count, Allocator.TempJob); // This is for storing the node index of each enemy
-        NativeArray<float> enemy_speeds = new NativeArray<float>(Summoner.enemies_alive.Count, Allocator.TempJob); // This is for storing the speed of each enemy
-        NativeArray<Vector3> to_use_nodes = new NativeArray<Vector3>(node_grid, Allocator.TempJob); // This is for storing the nodes that the enemies will follow (get from the generated map?)
-        TransformAccessArray enemy_access = new TransformAccessArray(Summoner.enemies_alive_transform.ToArray()); // This is for storing the transforms of the enemies
+        //// Implement enemy movement and AI updates here
+        //NativeArray<int> node_indexes = new NativeArray<int>(Summoner.enemies_alive.Count, Allocator.TempJob); // This is for storing the node index of each enemy
+        //NativeArray<float> enemy_speeds = new NativeArray<float>(Summoner.enemies_alive.Count, Allocator.TempJob); // This is for storing the speed of each enemy
+        //NativeArray<Vector3> to_use_nodes = new NativeArray<Vector3>(node_grid, Allocator.TempJob); // This is for storing the nodes that the enemies will follow (get from the generated map?)
+        //TransformAccessArray enemy_access = new TransformAccessArray(Summoner.enemies_alive_transform.ToArray()); // This is for storing the transforms of the enemies
 
-        // create array just to recognize flying enemies
-        NativeArray<bool> is_flying = new NativeArray<bool>(Summoner.enemies_alive.Count, Allocator.TempJob);
+        //// create array just to recognize flying enemies
+        //NativeArray<bool> is_flying = new NativeArray<bool>(Summoner.enemies_alive.Count, Allocator.TempJob);
 
 
-        //NativeArray<Animator> animators = new NativeArray<Animator>(Summoner.enemies_alive.Count, Allocator.TempJob);
+        ////NativeArray<Animator> animators = new NativeArray<Animator>(Summoner.enemies_alive.Count, Allocator.TempJob);
+        ////for (int i = 0; i < Summoner.enemies_alive.Count; i++)
+        ////{
+        ////    animators[i] = Summoner.enemies_alive[i].animator;
+        ////}
+
+        //// update the node index and speed of each enemy using for loop
         //for (int i = 0; i < Summoner.enemies_alive.Count; i++)
         //{
-        //    animators[i] = Summoner.enemies_alive[i].animator;
+        //    node_indexes[i] = Summoner.enemies_alive[i].Node_index;
+
+        //    enemy_speeds[i] = Summoner.enemies_alive[i].speed;
+
+        //    // check if the enemy is flying
+        //    is_flying[i] = Summoner.enemies_alive[i].name.Contains("Jet");
+        //    // also flies if contains drone
+        //    is_flying[i] = is_flying[i] || Summoner.enemies_alive[i].name.Contains("Drone");
         //}
 
-        // update the node index and speed of each enemy using for loop
-        for (int i = 0; i < Summoner.enemies_alive.Count; i++)
-        {
-            node_indexes[i] = Summoner.enemies_alive[i].Node_index;
 
-            enemy_speeds[i] = Summoner.enemies_alive[i].speed;
-
-            // check if the enemy is flying
-            is_flying[i] = Summoner.enemies_alive[i].name.Contains("Jet");
-            // also flies if contains drone
-            is_flying[i] = is_flying[i] || Summoner.enemies_alive[i].name.Contains("Drone");
-        }
-
-
-        MoveJob moveJob = new MoveJob
-        {
-            node_index = node_indexes,
-            enemy_speed = enemy_speeds,
-            node_grid = to_use_nodes,
-            deltaTime = Time.deltaTime,
-
-            is_fly = is_flying
-        };
-
-        JobHandle Move_handle = moveJob.Schedule(enemy_access); // this will schedule the job to run on the enemy_access transforms
-        Move_handle.Complete(); // this will complete the job
-
-
-
-        // set all the data to the enemies
-        for (int i = 0; i < Summoner.enemies_alive.Count; i++)
-        {
-            Enemy enemy = Summoner.enemies_alive[i];
-            //Vector3 previousPosition = enemy.transform.position; //
-
-            enemy.Node_index = node_indexes[i];
-            // check if the enemy has reached the end of the path
-            if (enemy.Node_index >= node_grid.Length)
-            {
-                // remove the enemy using enqueue_enemy_to_kill function
-                enqueue_enemy_to_kill(enemy);
-            }
-
-            //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-            //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-            enemy.speed = enemy_speeds[i];
-
-
-        }
-
-        //foreach (var enemy in Summoner.enemies_alive)
+        //MoveJob moveJob = new MoveJob
         //{
-        //    if (enemy.animator == null)
+        //    node_index = node_indexes,
+        //    enemy_speed = enemy_speeds,
+        //    node_grid = to_use_nodes,
+        //    deltaTime = Time.deltaTime,
+
+        //    is_fly = is_flying
+        //};
+
+        //JobHandle Move_handle = moveJob.Schedule(enemy_access); // this will schedule the job to run on the enemy_access transforms
+        //Move_handle.Complete(); // this will complete the job
+
+
+
+        //// set all the data to the enemies
+        //for (int i = 0; i < Summoner.enemies_alive.Count; i++)
+        //{
+        //    Enemy enemy = Summoner.enemies_alive[i];
+        //    //Vector3 previousPosition = enemy.transform.position; //
+
+        //    enemy.Node_index = node_indexes[i];
+        //    // check if the enemy has reached the end of the path
+        //    if (enemy.Node_index >= node_grid.Length)
         //    {
-        //        Debug.LogError($"Animator missing on enemy {enemy.name}");
+        //        // remove the enemy using enqueue_enemy_to_kill function
+        //        enqueue_enemy_to_kill(enemy);
         //    }
-        //    else if (!enemy.animator.isActiveAndEnabled)
-        //    {
-        //        Debug.LogError($"Animator not active on enemy {enemy.name}");
-        //    }
+
+        //    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+        //    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+        //    enemy.speed = enemy_speeds[i];
+
+
         //}
 
+        ////foreach (var enemy in Summoner.enemies_alive)
+        ////{
+        ////    if (enemy.animator == null)
+        ////    {
+        ////        Debug.LogError($"Animator missing on enemy {enemy.name}");
+        ////    }
+        ////    else if (!enemy.animator.isActiveAndEnabled)
+        ////    {
+        ////        Debug.LogError($"Animator not active on enemy {enemy.name}");
+        ////    }
+        ////}
 
-        // dispose the arrays
-        node_indexes.Dispose();
-        enemy_speeds.Dispose();
-        to_use_nodes.Dispose();
-        enemy_access.Dispose();
 
-        is_flying.Dispose();
+        //// dispose the arrays
+        //node_indexes.Dispose();
+        //enemy_speeds.Dispose();
+        //to_use_nodes.Dispose();
+        //enemy_access.Dispose();
 
-        //animators.Dispose();
+        //is_flying.Dispose();
 
-
-
-
+        ////animators.Dispose()
 
     }
+
+
+
+
+
 
     void ApplyEffects()
     {
@@ -377,17 +385,7 @@ public struct MoveJob : IJobParallelForTransform
                 node_index[index] = node_index[index] + 1;
                 //Debug.Log($"Enemy reached node {node_index[index]}");
 
-                // reset the rotation of the enemy
-                // transform.rotation = Quaternion.identity;
-
             }
-
-            //if (is_fly[index])
-            //{
-            //    Vector3 adjustedPosition = transform.position;
-            //    adjustedPosition.y = 2; // Set y to 2
-            //    transform.position = adjustedPosition;
-            //}
 
 
 

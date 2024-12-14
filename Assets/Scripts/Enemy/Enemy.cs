@@ -23,28 +23,6 @@ public class Enemy : MonoBehaviour
         transform.position = EnemyManager.node_grid[0];
         Node_index = 0; // to reset the node index to the first node when the enemy is spawned
 
-        // Automatically find the Animator on this GameObject
-        //if (animator == null) // Check if it's unassigned
-        //{
-        //    animator = GetComponent<Animator>();
-        //    if (animator == null)
-        //    {
-        //        Debug.LogError($"Animator not found on {gameObject.name}");
-        //    }
-        //}
-        //animator = GetComponentInChildren<Animator>();
-        //animator = GetComponentInChildren<Animator>();
-        //// Debug 
-        //Debug.Log("Enemy initialized");
-        //if (animator == null)
-        //{
-        //    Debug.LogError("No animator found on enemy");
-        //}
-        //else
-        //{
-        //    Debug.Log("Animator found on enemy");
-        //}
-
 
     }
 
@@ -56,30 +34,57 @@ public class Enemy : MonoBehaviour
     }
 
     void Update() {
-        if (health == 0) {
+        if (health <= 0) 
+        {
             isAlive = false;
             animation_controller.SetBool("Die", true);
             animation_controller.SetBool("Walk", false);
-        } else {
-            animation_controller.SetBool("Die", false);
-            animation_controller.SetBool("Walk", true);
+            Destroy(gameObject, 1.5f);
         }
+        //else 
+        //{
+        //    animation_controller.SetBool("Die", false);
+        //    animation_controller.SetBool("Walk", true);
+        //}
+        
+        Perform_movement();
     }
 
-    //public void StartMoving()
-    //{
-    //    if (animator != null)
-    //    {
-    //        animator.SetBool("is_walking", true);
-    //    }
-    //    else
-    //    {
-    //        Debug.LogError("No animator found on enemy");
-    //    }
-    //}
+    ////////// MM: new (revise later )
+    public void Perform_movement()
+    {
+        if (isAlive)
+        {
+            Move_on_path();
+        }
+    }
+    void Move_on_path()
+    {
+        if (Node_index < EnemyManager.node_grid.Length)
+        {
+            Vector3 targetNode = EnemyManager.node_grid[Node_index];
+            Vector3 moveDirection = (targetNode - transform.position).normalized;
+            transform.position = Vector3.MoveTowards(transform.position, targetNode, speed * Time.deltaTime);
 
+            // Rotate to face movement direction
+            if (moveDirection != Vector3.zero)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 5f);
+            }
 
-
-
+            // Advance to next node if close enough
+            if (Vector3.Distance(transform.position, targetNode) < 0.1f)
+            {
+                Node_index++;
+            }
+        }
+        else
+        {
+            // Reached end of path, remove enemy
+            EnemyManager.enqueue_enemy_to_kill(this);
+        }
+    }
+    //////////
 
 }
