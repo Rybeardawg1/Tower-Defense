@@ -25,20 +25,12 @@ public class Enemy : MonoBehaviour
         transform.position = EnemyManager.node_grid[0];
         Node_index = 0; // to reset the node index to the first node when the enemy is spawned
 
-
-
     }
-
-
 
 
     public void TakeDamage(int damage)
     {   
         health -= damage;
-        //if (health <= 0)
-        //{
-        //    //Destroy(gameObject); // Destroy enemy when health reaches zero
-        //}
     }
 
 
