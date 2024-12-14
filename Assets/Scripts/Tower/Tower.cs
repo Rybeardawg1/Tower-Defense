@@ -34,9 +34,9 @@ public class Tower : MonoBehaviour
         foreach (GameObject obj in allObjects)
         {
             //// Check if the object name starts with "Jet"
-            if (obj.name.StartsWith("orc"))
+            //if (obj.name.StartsWith("orc"))
             // doesnt have to start with jet
-            //if (obj.GetComponent<Enemy>() != null)
+            if (obj.GetComponent<Enemy>() != null)
             {
                 float distance = Vector3.Distance(transform.position, obj.transform.position);
                 if (distance < closestDistance)
@@ -54,6 +54,7 @@ public class Tower : MonoBehaviour
     {
         // Instantiate the projectile and set its target
         GameObject projectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
+        Debug.Log("Firing at " + target.name);
         projectile.GetComponent<Projectile>().Initialize(target);
     }
 }
