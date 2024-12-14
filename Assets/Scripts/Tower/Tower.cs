@@ -26,7 +26,6 @@ public class Tower : MonoBehaviour
 
     GameObject FindClosestEnemy()
     {
-        Debug.Log("Finding closest enemy");
         // Find all objects in the scene
         GameObject[] allObjects = GameObject.FindObjectsOfType<GameObject>();
         GameObject closest = null;
@@ -34,9 +33,8 @@ public class Tower : MonoBehaviour
 
         foreach (GameObject obj in allObjects)
         {
-            Debug.Log("Checking object: " + obj.name);
             //// Check if the object name is not null
-            if (obj.name != null)
+            if (obj.name.StartsWith("Jet") || obj.name.StartsWith("orc"))
             {
                 float distance = Vector3.Distance(transform.position, obj.transform.position);
                 if (distance < closestDistance)
@@ -54,7 +52,6 @@ public class Tower : MonoBehaviour
     {
         // Instantiate the projectile and set its target
         GameObject projectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
-        Debug.Log("Firing at " + target.name);
         projectile.GetComponent<Projectile>().Initialize(target);
     }
 }
