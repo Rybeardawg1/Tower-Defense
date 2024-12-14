@@ -87,4 +87,12 @@ public class Enemy : MonoBehaviour
     }
     //////////
 
+    // som/ash
+    public void TakeDamage(int damage)
+    {
+        health -= damage;
+    }
+    //
+
+
 }
