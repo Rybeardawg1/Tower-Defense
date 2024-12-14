@@ -37,49 +37,89 @@ public class Summoner : MonoBehaviour
         }
     }
 
+    //public static Enemy spawn_enemy(int Enimy_ID)
+    //{
+    //    Enemy Spawned_enemy = null;
+
+
+    //    // check if the ID is in the dictionary
+    //    if (enemy_prefabs.ContainsKey(Enimy_ID))
+    //    {
+    //        Queue<Enemy> enemy_in_queue = enemy_pools[Enimy_ID];// enemy_in_queue is the pool of the enemy with the ID Enimy_ID
+
+    //        if (enemy_in_queue.Count > 0) // if there are enemies in the pool waiting to be spawned
+    //        {
+    //            Spawned_enemy = enemy_in_queue.Dequeue();// get the enemy from the pool
+    //            Spawned_enemy.Init();// initialize the enemy
+
+    //            // reactivate units that were deactivated in the remove_enemy function below (this way we can reuse the enemy)
+    //            Spawned_enemy.gameObject.SetActive(true);
+    //        }
+
+    //        else
+    //        {
+    //            GameObject new_spawned = Instantiate(enemy_prefabs[Enimy_ID], EnemyManager.node_grid[0], Quaternion.identity);// instantiate the enemy prefab at the first node
+    //            Spawned_enemy = new_spawned.GetComponent<Enemy>();// get the Enemy component of the enemy prefab
+    //        }
+    //    }
+
+    //    else
+    //    {
+    //        Debug.LogError("Enemy ID " + Enimy_ID + " not found");
+    //        return null;
+    //    }
+    //    enemies_alive_transform.Add(Spawned_enemy.transform);// add the enemy to the list of transforms of enemies alive for movement
+    //    enemies_alive.Add(Spawned_enemy);// add the enemy to the list of enemies alive
+    //    Spawned_enemy.ID = Enimy_ID;// set the ID of the enemy
+
+
+    //    // start the enemy moving
+    //    //Spawned_enemy.StartMoving();
+
+    //    return Spawned_enemy;
+
+
+    //}
+
     public static Enemy spawn_enemy(int Enimy_ID)
     {
         Enemy Spawned_enemy = null;
 
-
-        // check if the ID is in the dictionary
+        // Check if the ID is in the dictionary
         if (enemy_prefabs.ContainsKey(Enimy_ID))
         {
-            Queue<Enemy> enemy_in_queue = enemy_pools[Enimy_ID];// enemy_in_queue is the pool of the enemy with the ID Enimy_ID
+            Queue<Enemy> enemy_in_queue = enemy_pools[Enimy_ID]; // Pool of the enemy with the ID
 
-            if (enemy_in_queue.Count > 0) // if there are enemies in the pool waiting to be spawned
+            if (enemy_in_queue.Count > 0) // Spawn from pool
             {
-                Spawned_enemy = enemy_in_queue.Dequeue();// get the enemy from the pool
-                Spawned_enemy.Init();// initialize the enemy
-
-                // reactivate units that were deactivated in the remove_enemy function below (this way we can reuse the enemy)
-                Spawned_enemy.gameObject.SetActive(true);
+                Spawned_enemy = enemy_in_queue.Dequeue(); // Get the enemy from the pool
+                Spawned_enemy.gameObject.SetActive(true); // Reactivate
+            }
+            else // Spawn new enemy
+            {
+                GameObject new_spawned = Instantiate(enemy_prefabs[Enimy_ID], EnemyManager.node_grid[0], Quaternion.identity);
+                Spawned_enemy = new_spawned.GetComponent<Enemy>();
             }
 
-            else
-            {
-                GameObject new_spawned = Instantiate(enemy_prefabs[Enimy_ID], EnemyManager.node_grid[0], Quaternion.identity);// instantiate the enemy prefab at the first node
-                Spawned_enemy = new_spawned.GetComponent<Enemy>();// get the Enemy component of the enemy prefab
-            }
+            // Initialize the enemy
+            Spawned_enemy.Init(); // Ensure Init() is called in both cases
+            Debug.Log($"Enemy {Spawned_enemy.ID} spawned and initialized.");
         }
-
         else
         {
             Debug.LogError("Enemy ID " + Enimy_ID + " not found");
             return null;
         }
-        enemies_alive_transform.Add(Spawned_enemy.transform);// add the enemy to the list of transforms of enemies alive for movement
-        enemies_alive.Add(Spawned_enemy);// add the enemy to the list of enemies alive
-        Spawned_enemy.ID = Enimy_ID;// set the ID of the enemy
 
-
-        // start the enemy moving
-        //Spawned_enemy.StartMoving();
+        // Add to active lists
+        enemies_alive_transform.Add(Spawned_enemy.transform);
+        enemies_alive.Add(Spawned_enemy);
+        Spawned_enemy.ID = Enimy_ID;
 
         return Spawned_enemy;
-
-
     }
+
+
 
     // now removing the enemy from the scene
     public static void remove_enemy(Enemy enemy_to_kill)

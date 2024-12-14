@@ -30,31 +30,135 @@ public class Enemy : MonoBehaviour
 
 
         CreateHealthBar();
+        Debug.Log("Enemy initialized with health bar.");
     }
-
 
     private void CreateHealthBar()
     {
+        // Create a new GameObject for the health bar
         GameObject canvasGO = new GameObject("HealthBarCanvas");
         Canvas canvas = canvasGO.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.WorldSpace;
         canvas.transform.SetParent(transform, false);
 
+        // Scale and position the canvas
         RectTransform canvasRect = canvas.GetComponent<RectTransform>();
-        canvasRect.sizeDelta = new Vector2(2, 0.2f);
-        canvasRect.localPosition = new Vector3(0, 2, 0); // Position above the enemy
+        canvasRect.sizeDelta = new Vector2(8, 0.01f); // Size of the health bar
+        canvasRect.localPosition = new Vector3(0, 4, 0); // Position above the enemy
+        canvasRect.localScale = Vector3.one * 0.01f; // Small enough for a health bar
 
+        // Create a slider for the health bar
         GameObject sliderGO = new GameObject("HealthBar");
         sliderGO.transform.SetParent(canvasGO.transform, false);
+
+
 
         health_bar_slider = sliderGO.AddComponent<Slider>();
         health_bar_slider.minValue = 0;
         health_bar_slider.maxValue = 1;
         health_bar_slider.value = 1;
 
-        RectTransform sliderRect = sliderGO.GetComponent<RectTransform>();
-        sliderRect.sizeDelta = new Vector2(2, 0.2f);
+        // Remove unnecessary background
+        GameObject backgroundGO = new GameObject("Background");
+        backgroundGO.transform.SetParent(sliderGO.transform, false);
+        RectTransform bgRect = backgroundGO.AddComponent<RectTransform>();
+        bgRect.anchorMin = Vector2.zero;
+        bgRect.anchorMax = Vector2.one;
+        bgRect.offsetMin = Vector2.zero;
+        bgRect.offsetMax = Vector2.zero;
+
+        Image background = backgroundGO.AddComponent<Image>();
+        background.color = Color.black; // Black background for contrast
+        health_bar_slider.targetGraphic = background;
+
+        // Create the Fill Area
+        GameObject fillGO = new GameObject("Fill");
+        fillGO.transform.SetParent(sliderGO.transform, false);
+
+        RectTransform fillRect = fillGO.AddComponent<RectTransform>();
+        fillRect.anchorMin = Vector2.zero;
+        fillRect.anchorMax = Vector2.one;
+        fillRect.offsetMin = Vector2.zero;
+        fillRect.offsetMax = Vector2.zero;
+
+        Image fillImage = fillGO.AddComponent<Image>();
+        fillImage.color = Color.red; // Green fill for health
+
+        health_bar_slider.fillRect = fillRect;
+
+        // Disable interaction for the slider (health bars are not clickable)
+        health_bar_slider.interactable = false;
+
+        // Debugging Logs
+        Debug.Log("Health bar created");
+        Debug.Log($"Canvas Rect: {canvasRect.sizeDelta}, Position: {canvasRect.localPosition}");
     }
+
+
+    //private void CreateHealthBar()
+    //{
+    //    // Create the canvas
+    //    GameObject canvasGO = new GameObject("HealthBarCanvas");
+    //    Canvas canvas = canvasGO.AddComponent<Canvas>();
+    //    canvas.renderMode = RenderMode.WorldSpace;
+    //    canvas.transform.SetParent(transform, false);
+
+    //    RectTransform canvasRect = canvas.GetComponent<RectTransform>();
+    //    canvasRect.localPosition = new Vector3(0, 2, 0); // Position above the enemy
+    //    canvasRect.localScale = Vector3.one * 0.1f; // Scale the whole canvas
+
+    //    // Create a slider for the health bar
+    //    GameObject sliderGO = new GameObject("HealthBar");
+    //    sliderGO.transform.SetParent(canvasGO.transform, false);
+
+    //    RectTransform sliderRect = sliderGO.AddComponent<RectTransform>();
+    //    sliderRect.sizeDelta = new Vector2(10, 0.2f); // Width and height of the slider
+    //    sliderRect.anchorMin = Vector2.zero;
+    //    sliderRect.anchorMax = Vector2.one;
+    //    sliderRect.offsetMin = Vector2.zero;
+    //    sliderRect.offsetMax = Vector2.zero;
+
+    //    health_bar_slider = sliderGO.AddComponent<Slider>();
+    //    health_bar_slider.minValue = 0;
+    //    health_bar_slider.maxValue = 1;
+    //    health_bar_slider.value = 1;
+    //    health_bar_slider.interactable = false; // Make it non-interactive
+
+    //    // Create the background
+    //    GameObject backgroundGO = new GameObject("Background");
+    //    backgroundGO.transform.SetParent(sliderGO.transform, false);
+
+    //    RectTransform bgRect = backgroundGO.AddComponent<RectTransform>();
+    //    bgRect.anchorMin = Vector2.zero;
+    //    bgRect.anchorMax = Vector2.one;
+    //    bgRect.offsetMin = Vector2.zero;
+    //    bgRect.offsetMax = Vector2.zero;
+
+    //    Image background = backgroundGO.AddComponent<Image>();
+    //    background.color = Color.black; // Black background for contrast
+    //    health_bar_slider.targetGraphic = background;
+
+    //    // Create the Fill Area
+    //    GameObject fillGO = new GameObject("Fill");
+    //    fillGO.transform.SetParent(sliderGO.transform, false);
+
+    //    RectTransform fillRect = fillGO.AddComponent<RectTransform>();
+    //    fillRect.anchorMin = Vector2.zero;
+    //    fillRect.anchorMax = Vector2.one;
+    //    fillRect.offsetMin = Vector2.zero;
+    //    fillRect.offsetMax = Vector2.zero;
+
+    //    Image fillImage = fillGO.AddComponent<Image>();
+    //    fillImage.color = Color.green; // Green fill for health
+
+    //    health_bar_slider.fillRect = fillRect;
+
+    //    // Debugging Logs
+    //    Debug.Log("Health bar created with rectangular shape.");
+    //}
+
+
+
 
 
 
@@ -129,6 +233,11 @@ public class Enemy : MonoBehaviour
     public void TakeDamage(int damage)
     {
         health -= damage;
+        if (health <= 0)
+        {
+            Destroy(health_bar_slider.gameObject); // Remove health bar
+            health = 0;
+        }
     }
     //
 

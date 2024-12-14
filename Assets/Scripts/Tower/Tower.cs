@@ -33,8 +33,10 @@ public class Tower : MonoBehaviour
 
         foreach (GameObject obj in allObjects)
         {
-            // Check if the object name starts with "Jet"
-            if (obj.name.StartsWith("Jet"))
+            //// Check if the object name starts with "Jet"
+            if (obj.name.StartsWith("orc"))
+            // doesnt have to start with jet
+            //if (obj.GetComponent<Enemy>() != null)
             {
                 float distance = Vector3.Distance(transform.position, obj.transform.position);
                 if (distance < closestDistance)
