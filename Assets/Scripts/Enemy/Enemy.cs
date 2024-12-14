@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.UI;
 
 
 public class Enemy : MonoBehaviour
@@ -15,6 +15,10 @@ public class Enemy : MonoBehaviour
     private CharacterController character_controller;
     private float health;
 
+
+    private GameObject health_bar;
+    private Slider health_bar_slider;
+
     // initialize 
     public void Init()
     {
@@ -24,7 +28,35 @@ public class Enemy : MonoBehaviour
         Node_index = 0; // to reset the node index to the first node when the enemy is spawned
 
 
+
+        CreateHealthBar();
     }
+
+
+    private void CreateHealthBar()
+    {
+        GameObject canvasGO = new GameObject("HealthBarCanvas");
+        Canvas canvas = canvasGO.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.WorldSpace;
+        canvas.transform.SetParent(transform, false);
+
+        RectTransform canvasRect = canvas.GetComponent<RectTransform>();
+        canvasRect.sizeDelta = new Vector2(2, 0.2f);
+        canvasRect.localPosition = new Vector3(0, 2, 0); // Position above the enemy
+
+        GameObject sliderGO = new GameObject("HealthBar");
+        sliderGO.transform.SetParent(canvasGO.transform, false);
+
+        health_bar_slider = sliderGO.AddComponent<Slider>();
+        health_bar_slider.minValue = 0;
+        health_bar_slider.maxValue = 1;
+        health_bar_slider.value = 1;
+
+        RectTransform sliderRect = sliderGO.GetComponent<RectTransform>();
+        sliderRect.sizeDelta = new Vector2(2, 0.2f);
+    }
+
+
 
     void Start() {
         health = max_health;
@@ -46,7 +78,13 @@ public class Enemy : MonoBehaviour
         //    animation_controller.SetBool("Die", false);
         //    animation_controller.SetBool("Walk", true);
         //}
-        
+
+        // Update health bar value
+        if (health_bar_slider != null)
+        {
+            health_bar_slider.value = health / max_health;
+        }
+
         Perform_movement();
     }
 
