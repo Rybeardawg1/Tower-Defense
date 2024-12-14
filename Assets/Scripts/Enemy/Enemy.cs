@@ -26,51 +26,19 @@ public class Enemy : MonoBehaviour
         Node_index = 0; // to reset the node index to the first node when the enemy is spawned
 
 
-        // Automatically find the Animator on this GameObject
-        //if (animator == null) // Check if it's unassigned
-        //{
-        //    animator = GetComponent<Animator>();
-        //    if (animator == null)
-        //    {
-        //        Debug.LogError($"Animator not found on {gameObject.name}");
-        //    }
-        //}
-        //animator = GetComponentInChildren<Animator>();
-        //animator = GetComponentInChildren<Animator>();
-        //// Debug 
-        //Debug.Log("Enemy initialized");
-        //if (animator == null)
-        //{
-        //    Debug.LogError("No animator found on enemy");
-        //}
-        //else
-        //{
-        //    Debug.Log("Animator found on enemy");
-        //}
-
 
     }
 
-    //public void StartMoving()
-    //{
-    //    if (animator != null)
-    //    {
-    //        animator.SetBool("is_walking", true);
-    //    }
-    //    else
-    //    {
-    //        Debug.LogError("No animator found on enemy");
-    //    }
-    //}
+
 
 
     public void TakeDamage(int damage)
     {   
         health -= damage;
-        if (health <= 0)
-        {
-            Destroy(gameObject); // Destroy enemy when health reaches zero
-        }
+        //if (health <= 0)
+        //{
+        //    //Destroy(gameObject); // Destroy enemy when health reaches zero
+        //}
     }
 
 
