@@ -36,7 +36,7 @@ public class Tower : MonoBehaviour
         {
             Debug.Log("Checking object: " + obj.name);
             //// Check if the object name is not null
-            if (obj.name.ToLower().Contains("orc"))
+            if (obj.name != null)
             {
                 float distance = Vector3.Distance(transform.position, obj.transform.position);
                 if (distance < closestDistance)
