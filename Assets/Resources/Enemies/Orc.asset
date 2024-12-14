@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8780db02b6080bc45af98ebc28744890, type: 3}
   m_Name: Orc
   m_EditorClassIdentifier: 
-  enemy_prefab: {fileID: 1178436178935821014, guid: 618df8b7228144873980caf6697ccee3, type: 3}
+  enemy_prefab: {fileID: 3663749553909714983, guid: 4a9666efc0abb514ca8f8d9651a784bc, type: 3}
   Enemy_ID: 1

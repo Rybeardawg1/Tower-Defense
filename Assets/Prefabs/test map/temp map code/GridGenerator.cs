@@ -31,45 +31,50 @@ public class GridGenerator : MonoBehaviour
         {
             for (int z = 0; z < gridSizeZ; z++)
             {
-                bool isTower = ShouldGenerateTower();
+                //bool isTower = ShouldGenerateTower();
                 Vector3 cellPosition = new Vector3(x * cellSize, 0, z * cellSize);
 
-                if (!isTower)
-                {
-                    GameObject cell = Instantiate(cellPrefab, cellPosition, Quaternion.identity, transform);
-                    cell.name = $"Cell_{x}_{z}";
-                    cell.tag = "GreenCell";
-                    cell.GetComponent<Renderer>().material.color = Color.green; // Default tile color
+                //if (!isTower)
+                //{
+                GameObject cell = Instantiate(cellPrefab, cellPosition, Quaternion.identity, transform);
+                cell.name = $"Cell_{x}_{z}";
+                cell.tag = "GreenCell";
+                cell.GetComponent<Renderer>().material.color = Color.green; // Default tile color
 
-                    // Track cells in a dictionary for easy recoloring
-                    gridCells[new Vector2Int(x, z)] = cell;
-                }
-                else
-                {
-                    GameObject cell = Instantiate(towerPrefab, cellPosition, Quaternion.identity, transform);
-                    cell.tag = "TurretCell";
-                    cell.transform.localScale = new Vector3((float)0.1, (float)0.1, (float)0.1);
-                    cell.name = $"Cell_{x}_{z}";
+                // Track cells in a dictionary for easy recoloring
+                gridCells[new Vector2Int(x, z)] = cell;
+                //}
+                //else
+                //{
+                //    GameObject cell = Instantiate(towerPrefab, cellPosition, Quaternion.identity, transform);
+                //    cell.tag = "TurretCell";
+                //    cell.transform.localScale = new Vector3((float)0.1, (float)0.1, (float)0.1);
+                //    cell.name = $"Cell_{x}_{z}";
 
-                    // Track cells in a dictionary for easy recoloring
-                    gridCells[new Vector2Int(x, z)] = cell;
-                }
+                //    // Track cells in a dictionary for easy recoloring
+                //    gridCells[new Vector2Int(x, z)] = cell;
+                //}
 
             }
         }
-
-        
-
     }
 
-    static bool ShouldGenerateTower()
-    {
-        double probability = 0.02;
+    //static bool ShouldGenerateTower()
+    //{
+    //    double probability = 0.02;
 
-        System.Random random = new System.Random();
-        double randomValue = random.NextDouble(); // Generates a number between 0.0 and 1.0
-        return randomValue < probability;
-    }
+    //    System.Random random = new System.Random();
+    //    double randomValue = random.NextDouble(); // Generates a number between 0.0 and 1.0
+    //    return randomValue < probability;
+    //}
+    //static bool ShouldGenerateTower()
+    //{
+    //    double probability = 0.02;
+
+    //    System.Random random = new System.Random();
+    //    double randomValue = random.NextDouble(); // Generates a number between 0.0 and 1.0
+    //    return randomValue < probability;
+    //}
 
 
     // public void InitializeGrid()
@@ -104,8 +109,19 @@ public class GridGenerator : MonoBehaviour
             }
         }
         VisualizeTowerZones();
-
     }
+
+    //void VisualizeTowerZones()
+    //{
+    //    foreach (Vector2Int towerCell in towerPlacementZones)
+    //    {
+    //        if (gridCells.TryGetValue(towerCell, out GameObject cell))
+    //        {
+    //            //cell.GetComponent<Renderer>().material.color = Color.yellow; // Yellow for tower zones
+    //            cell.GetComponent<Renderer>().material.color = new Color(0.0f, 0.5f, 0.0f);
+    //        }
+    //    }
+    //}
 
     void VisualizeTowerZones()
     {
@@ -113,13 +129,19 @@ public class GridGenerator : MonoBehaviour
         {
             if (gridCells.TryGetValue(towerCell, out GameObject cell))
             {
-                //cell.GetComponent<Renderer>().material.color = Color.yellow; // Yellow for tower zones
-                //cell.GetComponent<Renderer>().material.color = new Color(0.0f, 0.5f, 0.0f);
+                Renderer renderer = cell.GetComponent<Renderer>();
+                if (renderer != null)
+                {
+                    //renderer.material.color = Color.yellow; // Yellow for tower zones
+                    renderer.material.color = new Color(0.0f, 0.5f, 0.0f);
+                }
+                else
+                {
+                    Debug.LogWarning($"No Renderer found on cell {cell.name}");
+                }
             }
         }
     }
-
-
 
 
     void GeneratePath()
@@ -155,6 +177,8 @@ public class GridGenerator : MonoBehaviour
         Debug.Log($"Tower placement zones: {towerPlacementZones.Count}");
     }
 
+
+
     void AddAdjacentCells(Vector2Int position)
     {
         Vector2Int[] directions = {
@@ -169,7 +193,7 @@ public class GridGenerator : MonoBehaviour
             Vector2Int adjacentCell = position + dir;
 
             // Add sparsity by skipping some cells randomly
-            if (Random.Range(0, 4) == 0) 
+            if (Random.Range(0, 4) == 0)
                 continue;
 
             if (IsValidCell(adjacentCell) &&
@@ -182,6 +206,7 @@ public class GridGenerator : MonoBehaviour
 
 
     }
+
 
 
     bool IsValidCell(Vector2Int cell)
