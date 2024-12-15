@@ -136,6 +136,7 @@ public class Enemy : MonoBehaviour
             EnemyManager.enqueue_enemy_to_kill(this);
             if (reached_goal_sound != null)
             {
+                Debug.Log("Playing Reached Goal Sound");
                 sfx_source.PlayOneShot(reached_goal_sound);
             }
         }
