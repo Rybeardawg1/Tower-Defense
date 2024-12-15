@@ -4,7 +4,7 @@ public class MusicController : MonoBehaviour
 {
     private static MusicController instance; // only one music controller exists
 
-    public AudioClip backgroundMusic;
+    public AudioClip background_music;
     private AudioSource audioSource;
 
     void Awake()
@@ -30,13 +30,15 @@ public class MusicController : MonoBehaviour
             audioSource = gameObject.AddComponent<AudioSource>();
         }
 
-        // Assign the music and configure the AudioSource
-        audioSource.clip = backgroundMusic;
-        audioSource.loop = true;        // Enable looping
-        audioSource.playOnAwake = true; // Automatically play on start
-        audioSource.volume = 0.3f;      // Set initial volume (adjust as needed)
 
-        // Play the music
+        audioSource.clip = background_music;
+        
+        audioSource.playOnAwake = true;
+        audioSource.loop = true;
+
+        audioSource.volume = 0.2f;
+
+        // Play
         if (!audioSource.isPlaying)
         {
             audioSource.Play();
