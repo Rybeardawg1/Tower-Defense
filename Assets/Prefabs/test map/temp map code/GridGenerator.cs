@@ -125,10 +125,18 @@ public class GridGenerator : MonoBehaviour
 
     void VisualizeTowerZones()
     {
-        foreach (Vector2Int towerCell in towerPlacementZones)
+         foreach (Vector2Int towerCell in towerPlacementZones)
+    {
+        if (gridCells.TryGetValue(towerCell, out GameObject cell))
         {
-            if (gridCells.TryGetValue(towerCell, out GameObject cell))
+            Renderer renderer = cell.GetComponent<Renderer>();
+            if (renderer != null)
             {
+                renderer.material.color = new Color(0.0f, 0.5f, 0.0f); // Yellow for tower zones
+            }
+            else
+            {
+
                 Renderer renderer = cell.GetComponent<Renderer>();
                 if (renderer != null)
                 {
@@ -141,6 +149,7 @@ public class GridGenerator : MonoBehaviour
                 }
             }
         }
+    }
     }
 
 
