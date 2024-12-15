@@ -2,82 +2,58 @@ using UnityEngine;
 
 public class CamControl : MonoBehaviour
 {
-    public float rot_sensitivity = 2f;  // Mouse sensitivity for rotation
-    public float maxXAngle = 10f;       // Max vertical angle for rotation
-    public float minXAngle = -10f;      // Min vertical angle for rotation
-    public float maxYAngle = 10f;       // Max horizontal angle for rotation
-    public float minYAngle = -10f;      // Min horizontal angle for rotation
+    public float rot_sensitivity = 2f;     // Mouse sensitivity for rotation (not needed here for fixed top-down)
+    public float move_sensitivity = 0.1f; // Sensitivity for mouse movement
+    public float zoomSpeed = 2f;          // Speed of zooming with the scroll wheel
+    public float minZoom = 5f;            // Minimum zoom height
+    public float maxZoom = 20f;           // Maximum zoom height
+    public float moveSpeed = 5f;          // Movement speed for WASD keys
 
-    public float xy_sensitivity = 0.1f; // Sensitivity for mouse-based movement
-    public float max_move = 2.0f;       // Maximum mouse-based move range
-
-    public float zoom_speed = 2.0f;     // Scroll wheel zoom speed
-    public float min_zoom = 2.0f;       // Minimum zoom distance
-    public float max_zoom = 10.0f;      // Maximum zoom distance
-
-    public float move_speed = 5.0f;     // Speed for WSAD movement
-
-    private float rotationX = 0f;       // Tracks vertical rotation
-    private float rotationY = 0f;       // Tracks horizontal rotation
-    private Vector3 init_pos;           // Initial position of the camera
-    private float current_zoom = 5.0f;  // Current zoom level
+    private Vector3 init_pos;             // Initial position of the camera
+    private float angle = 75f;            // Top-down angle
 
     void Start()
     {
-        init_pos = transform.position;      // Save initial position
-        rotationX = transform.eulerAngles.x;
-        rotationY = transform.eulerAngles.y;
+        // Save the initial position of the camera
+        init_pos = transform.position;
+
+        // Set the initial rotation for a top-down view
+        transform.rotation = Quaternion.Euler(angle, 0, 0);
     }
 
     void Update()
     {
         float mouseX = Input.GetAxis("Mouse X");
         float mouseY = Input.GetAxis("Mouse Y");
+        float scroll = Input.GetAxis("Mouse ScrollWheel");
 
-        // Handle right mouse button for rotation and movement
-        if (Input.GetMouseButton(1))
+        // Zoom with the scroll wheel (changes Y position)
+        if (scroll != 0)
         {
-            // Adjust rotation
-            rotationY += mouseX * rot_sensitivity;
-            rotationX -= mouseY * rot_sensitivity;
-
-            // Clamp rotation
-            rotationX = Mathf.Clamp(rotationX, minXAngle, maxXAngle);
-            rotationY = Mathf.Clamp(rotationY, minYAngle, maxYAngle);
-
-            // Apply rotation
-            transform.rotation = Quaternion.Euler(rotationX, rotationY, 0);
-        }
-        else
-        {
-            // Handle mouse-based movement
-            Vector3 mouseMovement = new Vector3(mouseX, mouseY, 0) * xy_sensitivity;
-            Vector3 newPosition = transform.position + mouseMovement;
-
-            // Clamp position to stay within max_move range
-            newPosition.x = Mathf.Clamp(newPosition.x, init_pos.x - max_move, init_pos.x + max_move);
-            newPosition.y = Mathf.Clamp(newPosition.y, init_pos.y - max_move, init_pos.y + max_move);
-
-            // Apply new position
-            transform.position = newPosition;
+            float newY = Mathf.Clamp(transform.position.y - scroll * zoomSpeed, minZoom, maxZoom);
+            transform.position = new Vector3(transform.position.x, newY, transform.position.z);
         }
 
-        // Handle scroll wheel zoom
-        float scrollInput = Input.GetAxis("Mouse ScrollWheel");
-        current_zoom -= scrollInput * zoom_speed;
-        current_zoom = Mathf.Clamp(current_zoom, min_zoom, max_zoom);
+        // Move the camera with the mouse (X-Z plane only)
+        if (Input.GetMouseButton(1)) // Only move when the right mouse button is pressed
+        {
+            Vector3 mouseMovement = new Vector3(mouseX, 0, mouseY) * move_sensitivity;
+            transform.position += mouseMovement;
+        }
 
-        // Apply zoom (move the camera along its forward vector)
-        transform.position = init_pos + transform.forward * -current_zoom;
+        // Move the camera with WASD keys (X-Z plane only)
+        Vector3 moveDirection = Vector3.zero;
+        if (Input.GetKey(KeyCode.W))
+            moveDirection += Vector3.forward;
+        if (Input.GetKey(KeyCode.S))
+            moveDirection += Vector3.back;
+        if (Input.GetKey(KeyCode.A))
+            moveDirection += Vector3.left;
+        if (Input.GetKey(KeyCode.D))
+            moveDirection += Vector3.right;
 
-        // Handle WSAD movement
-        Vector3 movement = new Vector3(
-            Input.GetAxis("Horizontal"),  // A/D for left/right
-            0,                            // No vertical input here
-            Input.GetAxis("Vertical")     // W/S for forward/backward
-        );
-
-        // Move the camera relative to its orientation
-        transform.Translate(movement * move_speed * Time.deltaTime, Space.Self);
+        // Normalize and apply movement (X-Z plane)
+        moveDirection = moveDirection.normalized * moveSpeed * Time.deltaTime;
+        transform.position += new Vector3(moveDirection.x, 0, moveDirection.z);
     }
 }

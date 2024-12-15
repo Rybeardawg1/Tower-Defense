@@ -209,6 +209,7 @@ GameObject:
   - component: {fileID: 330252030}
   - component: {fileID: 330252029}
   - component: {fileID: 330252032}
+  - component: {fileID: 330252033}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -304,6 +305,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pauseButton: {fileID: 1257115930}
   playButton: {fileID: 580717753}
+--- !u!114 &330252033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330252028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d48e06209c797464398be93838bcba18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rot_sensitivity: 2
+  move_sensitivity: 0.1
+  zoomSpeed: 2
+  minZoom: 5
+  maxZoom: 20
+  moveSpeed: 5
 --- !u!1 &433234799
 GameObject:
   m_ObjectHideFlags: 0
