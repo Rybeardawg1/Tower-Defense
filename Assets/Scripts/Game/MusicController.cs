@@ -36,7 +36,7 @@ public class MusicController : MonoBehaviour
         audioSource.playOnAwake = true;
         audioSource.loop = true;
 
-        audioSource.volume = 0.2f;
+        audioSource.volume = 0.3f;
 
         // Play
         if (!audioSource.isPlaying)

@@ -15,6 +15,17 @@ public class Enemy : MonoBehaviour
     private CharacterController character_controller;
     public float health;
 
+
+    [Header("Sound Effects")]
+    public AudioClip hit_sound;      // Sound for getting hit
+    public AudioClip reached_goal_sound;      // Sound for reaching the end
+
+    private AudioSource sfx_source;    // For sound effects
+
+
+    //public AudioClip hitsound;
+    //private AudioSource audioSource;
+
     [SerializeField] HealthBar healthBar;
 
 
@@ -51,6 +62,11 @@ public class Enemy : MonoBehaviour
         character_controller = GetComponent<CharacterController>();
         isAlive = true;
         healthBar.UpdateHealth(health, max_health);
+
+        sfx_source = gameObject.AddComponent<AudioSource>();
+        sfx_source.loop = false;
+        sfx_source.playOnAwake = false;
+        sfx_source.volume = 0.5f;
     }
 
     void Update() {
@@ -118,6 +134,10 @@ public class Enemy : MonoBehaviour
         {
             // Reached end of path, remove enemy
             EnemyManager.enqueue_enemy_to_kill(this);
+            if (reached_goal_sound != null)
+            {
+                sfx_source.PlayOneShot(reached_goal_sound);
+            }
         }
     }
     //////////
@@ -127,6 +147,12 @@ public class Enemy : MonoBehaviour
     {
         health -= damage;
         healthBar.UpdateHealth(health, max_health);
+
+        if (hit_sound != null)
+        {
+            sfx_source.PlayOneShot(hit_sound);
+        }
+
         if (health <= 0)
         {
             //Destroy(health_bar_slider.gameObject); // Remove health bar
