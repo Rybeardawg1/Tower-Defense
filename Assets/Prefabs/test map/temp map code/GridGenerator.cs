@@ -137,16 +137,16 @@ public class GridGenerator : MonoBehaviour
             else
             {
 
-                Renderer renderer = cell.GetComponent<Renderer>();
-                if (renderer != null)
-                {
-                    //renderer.material.color = Color.yellow; // Yellow for tower zones
-                    renderer.material.color = new Color(0.0f, 0.5f, 0.0f);
-                }
-                else
-                {
-                    Debug.LogWarning($"No Renderer found on cell {cell.name}");
-                }
+                ////Renderer renderer = cell.GetComponent<Renderer>();
+                //if (renderer != null)
+                //{
+                //    //renderer.material.color = Color.yellow; // Yellow for tower zones
+                //    renderer.material.color = new Color(0.0f, 0.5f, 0.0f);
+                //}
+                //else
+                //{
+                Debug.LogWarning($"No Renderer found on cell {cell.name}");
+                //}
             }
         }
     }
