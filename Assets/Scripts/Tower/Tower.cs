@@ -34,7 +34,7 @@ public class Tower : MonoBehaviour
         foreach (GameObject obj in allObjects)
         {
             //// Check if the object name is not null
-            if (obj.name.StartsWith("Jet") || obj.name.StartsWith("orc"))
+            if (obj.name.StartsWith("Jet") || obj.name.StartsWith("Orc"))
             {
                 float distance = Vector3.Distance(transform.position, obj.transform.position);
                 if (distance < closestDistance)
