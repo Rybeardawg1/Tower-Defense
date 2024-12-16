@@ -14,6 +14,8 @@ public class TowerDragAndDrop : MonoBehaviour, IBeginDragHandler, IDragHandler, 
 
     private GridGenerator gridGenerator;  // Reference to the GridGenerator for valid zones
 
+    public int towerCost = 100;       // Tower cost to place
+
     private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
@@ -66,12 +68,24 @@ public class TowerDragAndDrop : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         // Validate if the grid position is a valid tower placement zone
         if (gridGenerator.towerPlacementZones.Contains(gridPosition))
         {
-            position.x = gridPosition.x * cellSize;
-            position.z = gridPosition.y * cellSize;
-            position.y = 0; // Align with ground level
+            // Check balance from GameManager
+            GameManager gameManager = FindObjectOfType<GameManager>();
+            if (gameManager != null && gameManager.money >= towerCost)
+            {
+                // Deduct tower cost
+                gameManager.UpdateBalance(-towerCost);
 
-            // Instantiate the tower at the position
-            Instantiate(towerPrefab, position, Quaternion.identity);
+                position.x = gridPosition.x * cellSize;
+                position.z = gridPosition.y * cellSize;
+                position.y = 0; // Align with ground level
+
+                // Instantiate the tower at the position
+                Instantiate(towerPrefab, position, Quaternion.identity);
+            }
+            else
+            {
+                Debug.LogWarning("Not enough balance to place this tower!");
+            }
         }
         else
         {
