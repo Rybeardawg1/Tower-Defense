@@ -5,21 +5,18 @@ using UnityEngine.UIElements;
 using System;
 public class GridGenerator : MonoBehaviour
 {
-    public GameObject cellPrefab; // Assign a cube or custom cell prefab in the Inspector
+    public GameObject cellPrefab;
     public GameObject towerPrefab;
-    public GameObject grassPrefab; // Grass decoration
-    public GameObject rockPrefab; // Rock decoration
+    public GameObject grassPrefab; 
+    public GameObject rockPrefab; 
     public int gridSizeX = 16;
     public int gridSizeZ = 16;
     public float cellSize = 1f;
 
 
-    public List<Vector2Int> shortestPath { get; private set; } // Store the shortest path
-
-    //private List<Vector2Int> pathPositions;
-    public List<Vector2Int> pathPositions { get; private set; } // Expose the path positions
-
-    public List<Vector2Int> towerPositions { get; private set; } // Expose the path positions
+    public List<Vector2Int> shortestPath { get; private set; } // Store shortest path
+    public List<Vector2Int> pathPositions { get; private set; } // Positions
+    public List<Vector2Int> towerPositions { get; private set; }
     private Dictionary<Vector2Int, GameObject> gridCells = new Dictionary<Vector2Int, GameObject>(); // To track cells for coloring
     public List<Vector2Int> towerPlacementZones { get; private set; }
 
