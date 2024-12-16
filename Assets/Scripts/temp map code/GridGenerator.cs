@@ -31,19 +31,20 @@ public class GridGenerator : MonoBehaviour
 
 
 
-    // Variables for path generation
-    private Vector2Int currentPosition;
-    private int horizontalStraightCount;
-    private int verticalStraightCount;
-    private Vector2Int lastDirection;
-    private bool justTurned;
-    private int minStraightTilesAfterTurn;
 
     public float pathLengthFactor = 1.5f; // Factor to influence path length (closer to 1 means longer)
     public int maxHorizontalStraightTiles = 3; // Maximum horizontal tiles in a straight line
     public int maxVerticalStraightTiles = 15; // Maximum vertical tiles in a straight line
     public int minHorizontalStraightTiles = 2; // Minimum horizontal tiles in a straight line after a turn
     public int minVerticalStraightTiles = 10; // Minimum vertical tiles in a straight line after a turn
+
+    // Path generation variables (now declared as private member variables)
+    private Vector2Int currentPosition;
+    private int horizontalStraightCount;
+    private int verticalStraightCount;
+    private Vector2Int lastDirection;
+    private bool justTurned;
+    private int minStraightTilesAfterTurn;
 
     void GeneratePath()
     {
@@ -55,18 +56,15 @@ public class GridGenerator : MonoBehaviour
 
             if (nextSteps.Count == 0)
             {
-                ForceTurn();
-                nextSteps = GetNextSteps(currentPosition);
-            }
-
-            if (nextSteps.Count > 0)
-            {
-                TakeStep(nextSteps);
+                if (!HandleNoValidSteps())
+                {
+                    Debug.LogError("Path generation failed: Could not find a way to continue.");
+                    break;
+                }
             }
             else
             {
-                Debug.LogError("No valid steps available. Path generation failed.");
-                break;
+                TakeStep(nextSteps);
             }
         }
 
@@ -94,23 +92,14 @@ public class GridGenerator : MonoBehaviour
         List<Vector2Int> nextSteps = new List<Vector2Int>();
         Vector2Int[] possibleDirections = new Vector2Int[]
         {
-        new Vector2Int(-1, 0),  // Move left (always allowed)
-        new Vector2Int(0, 1),  // Move up
-        new Vector2Int(0, -1)  // Move down
+            new Vector2Int(-1, 0),  // Move left (always allowed)
+            new Vector2Int(0, 1),  // Move up
+            new Vector2Int(0, -1)  // Move down
         };
 
         foreach (Vector2Int direction in possibleDirections)
         {
-            int stepsToEdge = CalculateStepsToEdge(currentPosition, direction);
-
-            // Adjust min/max straight tiles for this direction only
-            int adjustedMaxStraightTiles = direction.x != 0 ? maxHorizontalStraightTiles : maxVerticalStraightTiles;
-            int adjustedMinStraightTiles = direction.x != 0 ? minHorizontalStraightTiles : minVerticalStraightTiles;
-
-            adjustedMaxStraightTiles = Math.Min(adjustedMaxStraightTiles, stepsToEdge);
-            adjustedMinStraightTiles = Math.Min(adjustedMinStraightTiles, stepsToEdge);
-
-            if (IsDirectionValid(direction, currentPosition, adjustedMinStraightTiles, adjustedMaxStraightTiles))
+            if (IsDirectionValid(direction, currentPosition))
             {
                 Vector2Int newPos = currentPosition + direction;
                 if (IsValidStep(newPos))
@@ -123,41 +112,19 @@ public class GridGenerator : MonoBehaviour
         return nextSteps;
     }
 
-    int CalculateStepsToEdge(Vector2Int position, Vector2Int direction)
+    bool IsDirectionValid(Vector2Int direction, Vector2Int currentPosition)
     {
-        if (direction.x != 0)
-        { // Horizontal movement (towards the left edge)
-            return position.x;
-        }
-        else if (direction.y > 0)
-        { // Vertical movement (upwards)
-            return gridSizeZ - 1 - position.y;
-        }
-        else
-        { // Vertical movement (downwards)
-            return position.y;
-        }
-    }
+        // Check for maximum straight tiles
+        if (direction.x != 0 && horizontalStraightCount >= maxHorizontalStraightTiles) return false;
+        if (direction.y != 0 && verticalStraightCount >= maxVerticalStraightTiles) return false;
 
-    bool IsDirectionValid(Vector2Int direction, Vector2Int currentPosition, int adjustedMinStraightTiles, int adjustedMaxStraightTiles)
-    {
-        // Check if the direction exceeds the adjusted maximum allowed straight tiles
-        if (direction.x != 0 && horizontalStraightCount >= adjustedMaxStraightTiles) return false;
-        if (direction.y != 0 && verticalStraightCount >= adjustedMaxStraightTiles) return false;
-
-        // Ensure that after a turn, the path continues in the same direction for at least the adjusted minimum required straight tiles
+        // Minimum straight tiles after a turn
         if (justTurned)
         {
-            if (direction == lastDirection)
+            if (direction != lastDirection) return false;
+            if (minStraightTilesAfterTurn < (lastDirection.x != 0 ? minHorizontalStraightTiles : minVerticalStraightTiles))
             {
-                if (minStraightTilesAfterTurn < adjustedMinStraightTiles)
-                {
-                    return true; // Must continue in this direction
-                }
-            }
-            else
-            {
-                return false; // Skip other directions if we haven't fulfilled the minimum straight tiles after a turn
+                return true;
             }
         }
 
@@ -169,35 +136,26 @@ public class GridGenerator : MonoBehaviour
         if (!IsValidCell(newPos) || pathPositions.Contains(newPos)) return false;
 
         int adjacentPathTiles = 0;
-        Vector2Int[] possibleDirections = new Vector2Int[]
+        foreach (Vector2Int neighborDirection in new Vector2Int[] { new Vector2Int(-1, 0), new Vector2Int(0, 1), new Vector2Int(0, -1) })
         {
-        new Vector2Int(-1, 0),  // Move left (always allowed)
-        new Vector2Int(0, 1),  // Move up
-        new Vector2Int(0, -1)  // Move down
-        };
-
-        foreach (Vector2Int neighborDirection in possibleDirections)
-        {
-            Vector2Int neighborPos = newPos + neighborDirection;
-            if (pathPositions.Contains(neighborPos))
-            {
-                adjacentPathTiles++;
-            }
+            if (pathPositions.Contains(newPos + neighborDirection)) adjacentPathTiles++;
         }
 
         return adjacentPathTiles < 2;
     }
 
-    void ForceTurn()
-    {
-        horizontalStraightCount = 0;
-        verticalStraightCount = 0;
-        justTurned = true; // We're about to force a turn
-    }
-
     void TakeStep(List<Vector2Int> nextSteps)
     {
-        Vector2Int chosenStep = nextSteps[UnityEngine.Random.Range(0, nextSteps.Count)];
+        // Prioritize the left direction if available and close to the end
+        Vector2Int chosenStep;
+        if (currentPosition.x == 1 && nextSteps.Contains(currentPosition + Vector2Int.left))
+        {
+            chosenStep = currentPosition + Vector2Int.left;
+        }
+        else
+        {
+            chosenStep = nextSteps[UnityEngine.Random.Range(0, nextSteps.Count)];
+        }
 
         // Calculate direction before updating currentPosition
         Vector2Int direction = chosenStep - currentPosition;
@@ -209,46 +167,84 @@ public class GridGenerator : MonoBehaviour
         UpdateTurnFlags(direction);
     }
 
+    bool HandleNoValidSteps()
+    {
+        // Check if we are at the leftmost position
+        if (currentPosition.x == 0)
+        {
+            return true; // Path generation successful
+        }
+
+        // Try forcing a left move if possible
+        if (currentPosition.x > 0 && IsValidStep(currentPosition + Vector2Int.left))
+        {
+            TakeStep(new List<Vector2Int> { currentPosition + Vector2Int.left });
+            return true;
+        }
+
+        // If no valid steps, attempt to backtrack
+        return Backtrack();
+    }
+
+    bool Backtrack()
+    {
+        if (pathPositions.Count <= 1)
+        {
+            return false; // Cannot backtrack further
+        }
+
+        // Remove the last position
+        pathPositions.RemoveAt(pathPositions.Count - 1);
+        currentPosition = pathPositions.Last();
+
+        // Reset turn flags and straight tile counts
+        justTurned = false;
+        minStraightTilesAfterTurn = 0;
+        if (lastDirection.x != 0) horizontalStraightCount = 0;
+        if (lastDirection.y != 0) verticalStraightCount = 0;
+
+        // Recalculate last direction
+        if (pathPositions.Count > 1)
+        {
+            lastDirection = currentPosition - pathPositions[pathPositions.Count - 2];
+        }
+        else
+        {
+            lastDirection = Vector2Int.zero;
+        }
+
+        return true; // Successfully backtracked
+    }
+
     void UpdateStraightTileCounts(Vector2Int direction)
     {
         if (direction.x != 0)
-        { // Moved left
+        {
             horizontalStraightCount++;
             verticalStraightCount = 0;
-
-            if (justTurned)
-            {
-                minStraightTilesAfterTurn++;
-            }
         }
-        else if (direction.y != 0)
-        { // Moved up or down
+        else
+        {
             verticalStraightCount++;
             horizontalStraightCount = 0;
+        }
 
-            if (justTurned)
-            {
-                minStraightTilesAfterTurn++;
-            }
+        if (justTurned)
+        {
+            minStraightTilesAfterTurn++;
         }
     }
 
     void UpdateTurnFlags(Vector2Int direction)
     {
-        if (lastDirection != Vector2Int.zero && direction != lastDirection)
+        if (direction != lastDirection)
         {
-            justTurned = true; // We made a turn
-            minStraightTilesAfterTurn = 0; // Reset the counter after a turn
-        }
-        else if (!justTurned)
-        {
-            justTurned = false;
-        }
-
-        if (justTurned && minStraightTilesAfterTurn >= (lastDirection.x != 0 ? minHorizontalStraightTiles : minVerticalStraightTiles))
-        {
-            justTurned = false;
+            justTurned = true;
             minStraightTilesAfterTurn = 0;
+        }
+        else if (justTurned && minStraightTilesAfterTurn >= (direction.x != 0 ? minHorizontalStraightTiles : minVerticalStraightTiles))
+        {
+            justTurned = false;
         }
 
         lastDirection = direction;
@@ -267,6 +263,227 @@ public class GridGenerator : MonoBehaviour
         Debug.Log($"Path generated with {pathPositions.Count} positions.");
         Debug.Log($"Tower placement zones: {towerPlacementZones.Count}");
     }
+
+
+
+    //// Variables for path generation
+    //private Vector2Int currentPosition;
+    //private int horizontalStraightCount;
+    //private int verticalStraightCount;
+    //private Vector2Int lastDirection;
+    //private bool justTurned;
+    //private int minStraightTilesAfterTurn;
+
+    //public float pathLengthFactor = 1.5f; // Factor to influence path length (closer to 1 means longer)
+    //public int maxHorizontalStraightTiles = 3; // Maximum horizontal tiles in a straight line
+    //public int maxVerticalStraightTiles = 15; // Maximum vertical tiles in a straight line
+    //public int minHorizontalStraightTiles = 2; // Minimum horizontal tiles in a straight line after a turn
+    //public int minVerticalStraightTiles = 10; // Minimum vertical tiles in a straight line after a turn
+
+    //void GeneratePath()
+    //{
+    //    InitializePathGeneration();
+
+    //    while (currentPosition.x > 0)
+    //    {
+    //        List<Vector2Int> nextSteps = GetNextSteps(currentPosition);
+
+    //        if (nextSteps.Count == 0)
+    //        {
+    //            ForceTurn();
+    //            nextSteps = GetNextSteps(currentPosition);
+    //        }
+
+    //        if (nextSteps.Count > 0)
+    //        {
+    //            TakeStep(nextSteps);
+    //        }
+    //        else
+    //        {
+    //            Debug.LogError("No valid steps available. Path generation failed.");
+    //            break;
+    //        }
+    //    }
+
+    //    AddAdjacentCellsToTowerZones();
+    //    LogPathGenerationResults();
+    //}
+
+    //void InitializePathGeneration()
+    //{
+    //    pathPositions = new List<Vector2Int>();
+    //    towerPlacementZones = new List<Vector2Int>();
+
+    //    currentPosition = new Vector2Int(gridSizeX - 1, UnityEngine.Random.Range(0, gridSizeZ));
+    //    pathPositions.Add(currentPosition);
+
+    //    horizontalStraightCount = 0;
+    //    verticalStraightCount = 0;
+    //    lastDirection = Vector2Int.zero;
+    //    justTurned = false;
+    //    minStraightTilesAfterTurn = 0;
+    //}
+
+    //List<Vector2Int> GetNextSteps(Vector2Int currentPosition)
+    //{
+    //    List<Vector2Int> nextSteps = new List<Vector2Int>();
+    //    Vector2Int[] possibleDirections = new Vector2Int[]
+    //    {
+    //    new Vector2Int(-1, 0),  // Move left (always allowed)
+    //    new Vector2Int(0, 1),  // Move up
+    //    new Vector2Int(0, -1)  // Move down
+    //    };
+
+    //    foreach (Vector2Int direction in possibleDirections)
+    //    {
+    //        if (IsDirectionValid(direction, currentPosition)) // Pass currentPosition to IsDirectionValid
+    //        {
+    //            Vector2Int newPos = currentPosition + direction;
+    //            if (IsValidStep(newPos))
+    //            {
+    //                nextSteps.Add(newPos);
+    //            }
+    //        }
+    //    }
+
+    //    return nextSteps;
+    //}
+
+
+    //bool IsDirectionValid(Vector2Int direction, Vector2Int currentPosition) // Add currentPosition parameter
+    //{
+    //    // Check if the direction exceeds the maximum allowed straight tiles
+    //    if (direction.x != 0 && horizontalStraightCount >= maxHorizontalStraightTiles) return false;
+    //    if (direction.y != 0 && verticalStraightCount >= maxVerticalStraightTiles) return false;
+
+    //    // Ensure that after a turn, the path continues in the same direction for at least the minimum required straight tiles
+    //    if (justTurned)
+    //    {
+    //        if (direction == lastDirection)
+    //        {
+    //            if (minStraightTilesAfterTurn < (lastDirection.x != 0 ? minHorizontalStraightTiles : minVerticalStraightTiles))
+    //            {
+    //                return true; // Must continue in this direction
+    //            }
+    //        }
+    //        else
+    //        {
+    //            return false; // Skip other directions if we haven't fulfilled the minimum straight tiles after a turn
+    //        }
+    //    }
+
+    //    // **EXCEPTION: Force move left if the next step would be the edge and we're not already moving left**
+    //    if (currentPosition.x == 1 && direction.x != -1)
+    //    {
+    //        return false;
+    //    }
+
+    //    return true;
+    //}
+
+    //bool IsValidStep(Vector2Int newPos)
+    //{
+    //    if (!IsValidCell(newPos) || pathPositions.Contains(newPos)) return false;
+
+    //    int adjacentPathTiles = 0;
+    //    Vector2Int[] possibleDirections = new Vector2Int[]
+    //    {
+    //    new Vector2Int(-1, 0),  // Move left (always allowed)
+    //    new Vector2Int(0, 1),  // Move up
+    //    new Vector2Int(0, -1)  // Move down
+    //    };
+
+    //    foreach (Vector2Int neighborDirection in possibleDirections)
+    //    {
+    //        Vector2Int neighborPos = newPos + neighborDirection;
+    //        if (pathPositions.Contains(neighborPos))
+    //        {
+    //            adjacentPathTiles++;
+    //        }
+    //    }
+
+    //    return adjacentPathTiles < 2;
+    //}
+
+    //void ForceTurn()
+    //{
+    //    horizontalStraightCount = 0;
+    //    verticalStraightCount = 0;
+    //    justTurned = true; // We're about to force a turn
+    //}
+
+    //void TakeStep(List<Vector2Int> nextSteps)
+    //{
+    //    Vector2Int chosenStep = nextSteps[UnityEngine.Random.Range(0, nextSteps.Count)];
+
+    //    // Calculate direction before updating currentPosition
+    //    Vector2Int direction = chosenStep - currentPosition;
+
+    //    currentPosition = chosenStep;
+    //    pathPositions.Add(currentPosition);
+
+    //    UpdateStraightTileCounts(direction);
+    //    UpdateTurnFlags(direction);
+    //}
+
+    //void UpdateStraightTileCounts(Vector2Int direction)
+    //{
+    //    if (direction.x != 0)
+    //    { // Moved left
+    //        horizontalStraightCount++;
+    //        verticalStraightCount = 0;
+
+    //        if (justTurned)
+    //        {
+    //            minStraightTilesAfterTurn++;
+    //        }
+    //    }
+    //    else if (direction.y != 0)
+    //    { // Moved up or down
+    //        verticalStraightCount++;
+    //        horizontalStraightCount = 0;
+
+    //        if (justTurned)
+    //        {
+    //            minStraightTilesAfterTurn++;
+    //        }
+    //    }
+    //}
+
+    //void UpdateTurnFlags(Vector2Int direction)
+    //{
+    //    if (lastDirection != Vector2Int.zero && direction != lastDirection)
+    //    {
+    //        justTurned = true; // We made a turn
+    //        minStraightTilesAfterTurn = 0; // Reset the counter after a turn
+    //    }
+    //    else if (!justTurned)
+    //    {
+    //        justTurned = false;
+    //    }
+
+    //    if (justTurned && minStraightTilesAfterTurn >= (lastDirection.x != 0 ? minHorizontalStraightTiles : minVerticalStraightTiles))
+    //    {
+    //        justTurned = false;
+    //        minStraightTilesAfterTurn = 0;
+    //    }
+
+    //    lastDirection = direction;
+    //}
+
+    //void AddAdjacentCellsToTowerZones()
+    //{
+    //    foreach (Vector2Int pos in pathPositions)
+    //    {
+    //        AddAdjacentCells(pos);
+    //    }
+    //}
+
+    //void LogPathGenerationResults()
+    //{
+    //    Debug.Log($"Path generated with {pathPositions.Count} positions.");
+    //    Debug.Log($"Tower placement zones: {towerPlacementZones.Count}");
+    //}
 
 
 
