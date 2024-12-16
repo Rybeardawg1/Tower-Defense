@@ -5,8 +5,8 @@ public class CamControl : MonoBehaviour
     public float rot_sensitivity = 2f;     // Mouse sensitivity for rotation (not needed here for fixed top-down)
     public float move_sensitivity = 0.1f; // Sensitivity for mouse movement
     public float zoomSpeed = 2f;          // Speed of zooming with the scroll wheel
-    public float minZoom = 5f;            // Minimum zoom height
-    public float maxZoom = 20f;           // Maximum zoom height
+    //public float minZoom = 1f;            // Minimum zoom height
+    //public float maxZoom = 40f;           // Maximum zoom height
     public float moveSpeed = 5f;          // Movement speed for WASD keys
 
     private Vector3 init_pos;             // Initial position of the camera
@@ -28,11 +28,11 @@ public class CamControl : MonoBehaviour
         float scroll = Input.GetAxis("Mouse ScrollWheel");
 
         // Zoom with the scroll wheel (changes Y position)
-        if (scroll != 0)
-        {
-            float newY = Mathf.Clamp(transform.position.y - scroll * zoomSpeed, minZoom, maxZoom);
-            transform.position = new Vector3(transform.position.x, newY, transform.position.z);
-        }
+        //if (scroll != 0)
+        //{
+        //    float newY = Mathf.Clamp(transform.position.y - scroll * zoomSpeed, minZoom, maxZoom);
+        //    transform.position = new Vector3(transform.position.x, newY, transform.position.z);
+        //}
 
         // Move the camera with the mouse (X-Z plane only)
         if (Input.GetMouseButton(1)) // Only move when the right mouse button is pressed

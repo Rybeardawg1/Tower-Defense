@@ -894,8 +894,6 @@ MonoBehaviour:
   rot_sensitivity: 2
   move_sensitivity: 0.1
   zoomSpeed: 2
-  minZoom: 5
-  maxZoom: 20
   moveSpeed: 5
 --- !u!1 &367717726
 GameObject:
@@ -11226,7 +11224,7 @@ MonoBehaviour:
   rockPrefab: {fileID: 6594174366248298789, guid: 106798855aa108047bf56822d4214105, type: 3}
   gridSizeX: 32
   gridSizeZ: 24
-  cellSize: 1.1
+  cellSize: 1.01
   pathLengthFactor: 1
   maxHorizontalStraightTiles: 4
   maxVerticalStraightTiles: 10
@@ -11235,7 +11233,6 @@ MonoBehaviour:
   pathBranchingProbability: 0.08
   minBranchLength: 8
   maxBranches: 2
-
 --- !u!1 &2089901484
 GameObject:
   m_ObjectHideFlags: 0
