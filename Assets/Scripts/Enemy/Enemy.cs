@@ -50,22 +50,16 @@ public class Enemy : MonoBehaviour
     // initialize 
     public void Init()
     {
-//         max_health = 20;
-//         health = max_health;
-//         Debug.Log($"{gameObject.name} initialized with {health} health.");
+        //         max_health = 20;
+        //         health = max_health;
+        //         Debug.Log($"{gameObject.name} initialized with {health} health.");
         // set the position of the enemy to the first node
         transform.position = EnemyManager.node_grid[0];
         Node_index = 0; // to reset the node index to the first node when the enemy is spawned
-        
+
     }
-
-
-
-
-
-
-
-    void Start() {
+    void Start()
+    {
         health = max_health;
         animation_controller = GetComponent<Animator>();
         character_controller = GetComponent<CharacterController>();
@@ -78,8 +72,9 @@ public class Enemy : MonoBehaviour
         sfx_source.volume = 0.5f;
     }
 
-    void Update() {
-        if (health <= 0) 
+    void Update()
+    {
+        if (health <= 0)
         {
             isAlive = false;
             animation_controller.SetBool("Die", true);
@@ -105,7 +100,7 @@ public class Enemy : MonoBehaviour
         healthBar.UpdateHealth(health, max_health);
         Perform_movement();
     }
-    
+
 
     ////////// MM: new (revise later )
     public void Perform_movement()
@@ -115,8 +110,8 @@ public class Enemy : MonoBehaviour
             Move_on_path();
         }
     }
-    
-    
+
+
     void Move_on_path()
     {
         if (Node_index < EnemyManager.node_grid.Length)

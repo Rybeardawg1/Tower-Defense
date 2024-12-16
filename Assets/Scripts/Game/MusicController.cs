@@ -32,10 +32,8 @@ public class MusicController : MonoBehaviour
 
 
         audioSource.clip = background_music;
-        
         audioSource.playOnAwake = true;
         audioSource.loop = true;
-
         audioSource.volume = 0.3f;
 
         // Play

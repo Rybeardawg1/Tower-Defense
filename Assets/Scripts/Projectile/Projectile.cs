@@ -13,7 +13,8 @@ public class Projectile : MonoBehaviour
         target = enemyTarget;
     }
 
-    public void Awake(){
+    public void Awake()
+    {
         target = null;
     }
 

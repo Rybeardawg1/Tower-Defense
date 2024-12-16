@@ -172,7 +172,6 @@ public class EnemyManager : MonoBehaviour
                 Summoner.spawn_enemy(enemy_ID);
             }
         }
-
     }
 
     void UpdateEnemies()
