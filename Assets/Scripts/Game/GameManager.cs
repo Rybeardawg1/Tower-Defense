@@ -6,20 +6,39 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    public Button startButton;
+    public Text balanceText;
+    public Text healthText;
+    public int money;
+    public int health;
     // Start is called before the first frame update
     void Start()
     {
-        startButton.onClick.AddListener(StartGame);
-    }
-
-    void StartGame() {
-        SceneManager.LoadScene("Scene with enemies", LoadSceneMode.Single);
+        money = 500;
+        health = 100;
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
+    }
+
+    public void UpdateBalance(int mon)
+    {
+        if (money + mon >= 0)
+        {
+            money += mon;
+            balanceText.text = $"Balance: ${money}";
+        }
+
+    }
+
+    public void UpdateGameHealth(int hel)
+    {
+        if (health - hel > 0)
+        {
+            health -= hel;
+            healthText.text = $"Health: {health}";
+        }
     }
 }
