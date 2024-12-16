@@ -7,6 +7,8 @@ public class GridGenerator : MonoBehaviour
 {
     public GameObject cellPrefab; // Assign a cube or custom cell prefab in the Inspector
     public GameObject towerPrefab;
+    public GameObject grassPrefab; // Grass decoration
+    public GameObject rockPrefab; // Rock decoration
     public int gridSizeX = 16;
     public int gridSizeZ = 16;
     public float cellSize = 1f;
@@ -26,8 +28,11 @@ public class GridGenerator : MonoBehaviour
     {
         GenerateGrid();
         GeneratePath();
+        //DecorateGrid();
 
     }
+
+
 
 
 
@@ -442,18 +447,6 @@ public class GridGenerator : MonoBehaviour
     void CalculateShortestPath()
     {
         shortestPath = Dijkstra.FindShortestPath(pathPositions, new Vector2Int(gridSizeX - 1, pathPositions[0].y), Vector2Int.zero);
-
-        // Visualize the shortest path (optional - for debugging)
-        if (shortestPath != null)
-        {
-            foreach (Vector2Int pos in shortestPath)
-            {
-                if (gridCells.TryGetValue(pos, out GameObject cell))
-                {
-                    cell.GetComponent<Renderer>().material.color = Color.cyan; // Highlight shortest path
-                }
-            }
-        }
     }
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -472,28 +465,35 @@ public class GridGenerator : MonoBehaviour
                 //{
                 GameObject cell = Instantiate(cellPrefab, cellPosition, Quaternion.identity, transform);
                 cell.name = $"Cell_{x}_{z}";
-                cell.tag = "GreenCell";
+                cell.tag = "grass";
+
+
                 cell.GetComponent<Renderer>().material.color = Color.green; // Default tile color
+
+
+
+
+
+                Instantiate(grassPrefab, cell.transform.position + Vector3.up * 0.5f, Quaternion.identity, cell.transform);
+
+                //Instantiate(rockPrefab, cell.transform.position + Vector3.up * 1f, Quaternion.identity, cell.transform);
+
 
                 // Track cells in a dictionary for easy recoloring
                 gridCells[new Vector2Int(x, z)] = cell;
-                //}
-                //else
-                //{
-                //    GameObject cell = Instantiate(towerPrefab, cellPosition, Quaternion.identity, transform);
-                //    cell.tag = "TurretCell";
-                //    cell.transform.localScale = new Vector3((float)0.1, (float)0.1, (float)0.1);
-                //    cell.name = $"Cell_{x}_{z}";
 
-                //    // Track cells in a dictionary for easy recoloring
-                //    gridCells[new Vector2Int(x, z)] = cell;
-                //}
+                // Randomly decide to place grass or rocks
+                float randomChance = UnityEngine.Random.value;
+                // only place rocks on grass tiles
+                if (randomChance < 0.05f)
+                {
+                    Instantiate(rockPrefab, cell.transform.position + Vector3.up * 0.5f, Quaternion.identity, cell.transform);
+                }
 
             }
         }
     }
 
-    
 
 
     public void InitializeGrid()
@@ -514,6 +514,12 @@ public class GridGenerator : MonoBehaviour
                 //cell.GetComponent<Renderer>().material.color = Color.blue; // Blue for the path
                 //cell.GetComponent<Renderer>().material.color = new Color(0.5f, 0.35f, 0.05f);
                 cell.GetComponent<Renderer>().material.color = new Color(0.4f, 0.25f, 0.05f);
+
+                foreach (Transform child in cell.transform)
+                {
+                    Destroy(child.gameObject); // Destroy all child objects (grass, rocks, etc.)
+                }
+
             }
         }
         VisualizeTowerZones();

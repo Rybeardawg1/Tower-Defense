@@ -27,7 +27,10 @@ public class Enemy : MonoBehaviour
     //public AudioClip hitsound;
     //private AudioSource audioSource;
 
-    [SerializeField] HealthBar healthBar;
+    //[SerializeField] HealthBar healthBar;
+    // make it public to be able to access it from the enemy manager script
+    public HealthBar healthBar;
+
 
     private void Awake()
     {
