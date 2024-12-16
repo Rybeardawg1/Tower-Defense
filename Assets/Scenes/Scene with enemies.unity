@@ -11231,7 +11231,7 @@ MonoBehaviour:
   minHorizontalStraightTiles: 2
   minVerticalStraightTiles: 2
   pathBranchingProbability: 0.08
-  minBranchLength: 8
+  minBranchLength: 20
   maxBranches: 2
 --- !u!1 &2089901484
 GameObject:
