@@ -14,7 +14,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         money = 500;
-        health = 100;
+        health = 1000;
     }
 
     // Update is called once per frame
@@ -35,10 +35,17 @@ public class GameManager : MonoBehaviour
 
     public void ReduceGameHealth(int hel)
     {
-        if (health - hel > 0)
-        {
-            health -= hel;
-            healthText.text = $"Health: {health}";
-        }
+        health -= hel;
+
+    if (health <= 0)
+    {
+        health = 0; // Ensure health doesn’t go below 0
+        healthText.text = $"Health: {health}";
+        Debug.Log("Player's health reached 0.");
+    }
+    else
+    {
+        healthText.text = $"Health: {health}";
+    }
     }
 }
