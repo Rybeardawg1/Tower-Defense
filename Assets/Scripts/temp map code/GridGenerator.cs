@@ -32,11 +32,14 @@ public class GridGenerator : MonoBehaviour
 
 
 
-    public float pathLengthFactor = 1.5f; // Factor to influence path length (closer to 1 means longer)
-    public int maxHorizontalStraightTiles = 3; // Maximum horizontal tiles in a straight line
-    public int maxVerticalStraightTiles = 15; // Maximum vertical tiles in a straight line
-    public int minHorizontalStraightTiles = 2; // Minimum horizontal tiles in a straight line after a turn
-    public int minVerticalStraightTiles = 10; // Minimum vertical tiles in a straight line after a turn
+    public float pathLengthFactor = 1.5f;
+    public int maxHorizontalStraightTiles = 3;
+    public int maxVerticalStraightTiles = 15;
+    public int minHorizontalStraightTiles = 2;
+    public int minVerticalStraightTiles = 10;
+    public float pathBranchingProbability = 0.2f; // Probability of branching at any given step
+    public int minBranchLength = 5; // Minimum length of a branch before it can merge
+    public int maxBranches = 3; // Maximum number of simultaneous branches
 
     // Path generation variables (now declared as private member variables)
     private Vector2Int currentPosition;
@@ -46,63 +49,116 @@ public class GridGenerator : MonoBehaviour
     private bool justTurned;
     private int minStraightTilesAfterTurn;
 
+
+    private class PathBranch
+    {
+        public Vector2Int position;
+        public int length;
+        public int horizontalStraightCount;
+        public int verticalStraightCount;
+        public Vector2Int lastDirection;
+        public bool justTurned;
+        public int minStraightTilesAfterTurn;
+        public HashSet<Vector2Int> branchPathPositions; // Store positions for each branch (HashSet for efficiency)
+
+        public PathBranch(Vector2Int startPosition)
+        {
+            position = startPosition;
+            length = 0;
+            horizontalStraightCount = 0;
+            verticalStraightCount = 0;
+            lastDirection = Vector2Int.zero;
+            justTurned = false;
+            minStraightTilesAfterTurn = 0;
+            branchPathPositions = new HashSet<Vector2Int> { startPosition };
+        }
+    }
+
+    private List<PathBranch> activeBranches = new List<PathBranch>();
+
     void GeneratePath()
     {
-        InitializePathGeneration();
+        // Initialize path generation (all variables are now local)
+        pathPositions = new List<Vector2Int>();
+        towerPlacementZones = new List<Vector2Int>();
+        activeBranches.Clear();
 
-        while (currentPosition.x > 0)
+        Vector2Int startPosition = new Vector2Int(gridSizeX - 1, UnityEngine.Random.Range(0, gridSizeZ));
+        activeBranches.Add(new PathBranch(startPosition));
+
+        while (activeBranches.Any(branch => branch.position.x > 0))
         {
-            List<Vector2Int> nextSteps = GetNextSteps(currentPosition);
+            for (int i = activeBranches.Count - 1; i >= 0; i--)
+            {
+                PathBranch branch = activeBranches[i];
+                if (branch.position.x <= 0) continue;
 
-            if (nextSteps.Count == 0)
-            {
-                if (!HandleNoValidSteps())
+                List<Vector2Int> nextSteps = GetNextSteps(branch);
+
+                if (nextSteps.Count == 0)
                 {
-                    Debug.LogError("Path generation failed: Could not find a way to continue.");
-                    break;
+                    if (!HandleNoValidSteps(branch))
+                    {
+                        Debug.LogError($"Path branch generation failed at {branch.position}");
+                        activeBranches.Remove(branch);
+                    }
                 }
-            }
-            else
-            {
-                TakeStep(nextSteps);
+                else
+                {
+                    // Attempt branching while choosing a step
+                    if (activeBranches.Count < maxBranches && UnityEngine.Random.value < pathBranchingProbability)
+                    {
+                        PathBranch newBranch = new PathBranch(branch.position);
+                        activeBranches.Add(newBranch);
+                        Debug.Log($"New branch created at {newBranch.position}");
+                    }
+
+                    TakeStep(nextSteps, branch); // TakeStep now handles merges internally
+                    AttemptMerging(branch); // Merging logic updated
+                }
             }
         }
 
+        CombineBranchPositions(); // Using HashSet during generation makes this more efficient
         AddAdjacentCellsToTowerZones();
         LogPathGenerationResults();
     }
 
-    void InitializePathGeneration()
+
+
+    private void InitializePathGeneration()
     {
         pathPositions = new List<Vector2Int>();
         towerPlacementZones = new List<Vector2Int>();
 
         currentPosition = new Vector2Int(gridSizeX - 1, UnityEngine.Random.Range(0, gridSizeZ));
-        pathPositions.Add(currentPosition);
+        //pathPositions.Add(currentPosition); // Don't add initial position here
 
         horizontalStraightCount = 0;
         verticalStraightCount = 0;
         lastDirection = Vector2Int.zero;
         justTurned = false;
         minStraightTilesAfterTurn = 0;
+
+        activeBranches.Clear();
     }
 
-    List<Vector2Int> GetNextSteps(Vector2Int currentPosition)
+    List<Vector2Int> GetNextSteps(PathBranch branch)
     {
         List<Vector2Int> nextSteps = new List<Vector2Int>();
         Vector2Int[] possibleDirections = new Vector2Int[]
         {
-            new Vector2Int(-1, 0),  // Move left (always allowed)
-            new Vector2Int(0, 1),  // Move up
-            new Vector2Int(0, -1)  // Move down
+            new Vector2Int(-1, 0),
+            new Vector2Int(0, 1),
+            new Vector2Int(0, -1)
         };
 
         foreach (Vector2Int direction in possibleDirections)
         {
-            if (IsDirectionValid(direction, currentPosition))
+            if (IsDirectionValid(direction, branch))
             {
-                Vector2Int newPos = currentPosition + direction;
-                if (IsValidStep(newPos))
+                Vector2Int newPos = branch.position + direction;
+                if (IsValidStep(newPos, branch))
                 {
                     nextSteps.Add(newPos);
                 }
@@ -112,17 +168,17 @@ public class GridGenerator : MonoBehaviour
         return nextSteps;
     }
 
-    bool IsDirectionValid(Vector2Int direction, Vector2Int currentPosition)
+    bool IsDirectionValid(Vector2Int direction, PathBranch branch)
     {
         // Check for maximum straight tiles
-        if (direction.x != 0 && horizontalStraightCount >= maxHorizontalStraightTiles) return false;
-        if (direction.y != 0 && verticalStraightCount >= maxVerticalStraightTiles) return false;
+        if (direction.x != 0 && branch.horizontalStraightCount >= maxHorizontalStraightTiles) return false;
+        if (direction.y != 0 && branch.verticalStraightCount >= maxVerticalStraightTiles) return false;
 
         // Minimum straight tiles after a turn
-        if (justTurned)
+        if (branch.justTurned)
         {
-            if (direction != lastDirection) return false;
-            if (minStraightTilesAfterTurn < (lastDirection.x != 0 ? minHorizontalStraightTiles : minVerticalStraightTiles))
+            if (direction != branch.lastDirection) return false;
+            if (branch.minStraightTilesAfterTurn < (branch.lastDirection.x != 0 ? minHorizontalStraightTiles : minVerticalStraightTiles))
             {
                 return true;
             }
@@ -131,124 +187,233 @@ public class GridGenerator : MonoBehaviour
         return true;
     }
 
-    bool IsValidStep(Vector2Int newPos)
+    bool IsValidStep(Vector2Int newPos, PathBranch branch)
     {
-        if (!IsValidCell(newPos) || pathPositions.Contains(newPos)) return false;
+        if (!IsValidCell(newPos)) return false;
 
+        // Prevent merging with itself
+        if (branch.branchPathPositions.Contains(newPos)) return false;
+
+        // Allow merging with other branches
+        if (activeBranches.Any(b => b != branch && b.branchPathPositions.Contains(newPos))) return true;
+
+        // Check for adjacent path tiles from any branch
         int adjacentPathTiles = 0;
         foreach (Vector2Int neighborDirection in new Vector2Int[] { new Vector2Int(-1, 0), new Vector2Int(0, 1), new Vector2Int(0, -1) })
         {
-            if (pathPositions.Contains(newPos + neighborDirection)) adjacentPathTiles++;
+            if (activeBranches.Any(b => b.branchPathPositions.Contains(newPos + neighborDirection)))
+            {
+                adjacentPathTiles++;
+            }
         }
 
         return adjacentPathTiles < 2;
     }
 
-    void TakeStep(List<Vector2Int> nextSteps)
+    void TakeStep(List<Vector2Int> nextSteps, PathBranch branch)
     {
         // Prioritize the left direction if available and close to the end
         Vector2Int chosenStep;
-        if (currentPosition.x == 1 && nextSteps.Contains(currentPosition + Vector2Int.left))
+        if (branch.position.x == 1 && nextSteps.Contains(branch.position + Vector2Int.left))
         {
-            chosenStep = currentPosition + Vector2Int.left;
+            chosenStep = branch.position + Vector2Int.left;
         }
         else
         {
             chosenStep = nextSteps[UnityEngine.Random.Range(0, nextSteps.Count)];
         }
 
-        // Calculate direction before updating currentPosition
-        Vector2Int direction = chosenStep - currentPosition;
+        // Calculate direction before updating branch position
+        Vector2Int direction = chosenStep - branch.position;
 
-        currentPosition = chosenStep;
-        pathPositions.Add(currentPosition);
+        // Check if this step merges with another branch
+        var mergingBranch = activeBranches.FirstOrDefault(b => b != branch && b.branchPathPositions.Contains(chosenStep));
+        if (mergingBranch != null)
+        {
+            // Merge branches (updated logic)
+            MergeBranches(branch, mergingBranch);
+        }
+        else
+        {
+            // Normal step
+            branch.position = chosenStep;
+            branch.branchPathPositions.Add(chosenStep); // Using HashSet, no need to check for duplicates
+            branch.length++;
 
-        UpdateStraightTileCounts(direction);
-        UpdateTurnFlags(direction);
+            UpdateStraightTileCounts(direction, branch);
+            UpdateTurnFlags(direction, branch);
+        }
     }
 
-    bool HandleNoValidSteps()
+
+
+    bool HandleNoValidSteps(PathBranch branch)
     {
         // Check if we are at the leftmost position
-        if (currentPosition.x == 0)
+        if (branch.position.x == 0)
         {
-            return true; // Path generation successful
+            return true; // Path generation successful for this branch
         }
 
         // Try forcing a left move if possible
-        if (currentPosition.x > 0 && IsValidStep(currentPosition + Vector2Int.left))
+        if (branch.position.x > 0 && IsValidStep(branch.position + Vector2Int.left, branch))
         {
-            TakeStep(new List<Vector2Int> { currentPosition + Vector2Int.left });
+            TakeStep(new List<Vector2Int> { branch.position + Vector2Int.left }, branch);
             return true;
         }
 
-        // If no valid steps, attempt to backtrack
-        return Backtrack();
+        // If no valid steps, attempt to backtrack for the branch
+        return Backtrack(branch);
     }
 
-    bool Backtrack()
+    bool Backtrack(PathBranch branch)
     {
-        if (pathPositions.Count <= 1)
+        if (branch.branchPathPositions.Count <= 1)
         {
+            Debug.Log($"Backtrack failed for branch at {branch.position} - no positions left to backtrack.");
             return false; // Cannot backtrack further
         }
 
-        // Remove the last position
-        pathPositions.RemoveAt(pathPositions.Count - 1);
-        currentPosition = pathPositions.Last();
+        // Store the last position for debugging
+        Vector2Int lastPosition = branch.position;
+
+        // Remove the last position from the branch
+        branch.branchPathPositions.Remove(branch.branchPathPositions.Last());
+
+        // Check if the branch is now empty after removing the last position
+        if (branch.branchPathPositions.Count == 0)
+        {
+            Debug.Log($"Branch at {lastPosition} became empty after backtracking.");
+            return false; // Branch is empty
+        }
+
+        // Update the current position of the branch to the new last position
+        branch.position = branch.branchPathPositions.Last();
 
         // Reset turn flags and straight tile counts
-        justTurned = false;
-        minStraightTilesAfterTurn = 0;
-        if (lastDirection.x != 0) horizontalStraightCount = 0;
-        if (lastDirection.y != 0) verticalStraightCount = 0;
+        branch.justTurned = false;
+        branch.minStraightTilesAfterTurn = 0;
+        if (branch.lastDirection.x != 0) branch.horizontalStraightCount = 0;
+        if (branch.lastDirection.y != 0) branch.verticalStraightCount = 0;
 
-        // Recalculate last direction
-        if (pathPositions.Count > 1)
+        // Recalculate last direction for the branch
+        if (branch.branchPathPositions.Count > 1)
         {
-            lastDirection = currentPosition - pathPositions[pathPositions.Count - 2];
+            branch.lastDirection = branch.position - branch.branchPathPositions.ToList()[branch.branchPathPositions.Count - 2];
         }
         else
         {
-            lastDirection = Vector2Int.zero;
+            branch.lastDirection = Vector2Int.zero;
         }
 
+        Debug.Log($"Backtracked from {lastPosition} to {branch.position}");
         return true; // Successfully backtracked
     }
 
-    void UpdateStraightTileCounts(Vector2Int direction)
+    void UpdateStraightTileCounts(Vector2Int direction, PathBranch branch)
     {
         if (direction.x != 0)
         {
-            horizontalStraightCount++;
-            verticalStraightCount = 0;
+            branch.horizontalStraightCount++;
+            branch.verticalStraightCount = 0;
         }
         else
         {
-            verticalStraightCount++;
-            horizontalStraightCount = 0;
+            branch.verticalStraightCount++;
+            branch.horizontalStraightCount = 0;
         }
 
-        if (justTurned)
+        if (branch.justTurned)
         {
-            minStraightTilesAfterTurn++;
+            branch.minStraightTilesAfterTurn++;
         }
     }
 
-    void UpdateTurnFlags(Vector2Int direction)
+    void UpdateTurnFlags(Vector2Int direction, PathBranch branch)
     {
-        if (direction != lastDirection)
+        if (direction != branch.lastDirection)
         {
-            justTurned = true;
-            minStraightTilesAfterTurn = 0;
+            branch.justTurned = true;
+            branch.minStraightTilesAfterTurn = 0;
         }
-        else if (justTurned && minStraightTilesAfterTurn >= (direction.x != 0 ? minHorizontalStraightTiles : minVerticalStraightTiles))
+        else if (branch.justTurned && branch.minStraightTilesAfterTurn >= (direction.x != 0 ? minHorizontalStraightTiles : minVerticalStraightTiles))
         {
-            justTurned = false;
+            branch.justTurned = false;
         }
 
-        lastDirection = direction;
+        branch.lastDirection = direction;
     }
+
+    void AttemptBranching(PathBranch branch)
+    {
+        if (activeBranches.Count >= maxBranches) return;
+
+        if (UnityEngine.Random.value < pathBranchingProbability)
+        {
+            PathBranch newBranch = new PathBranch(branch.position);
+            activeBranches.Add(newBranch);
+            Debug.Log($"New branch created at {newBranch.position}");
+        }
+    }
+
+    void AttemptMerging(PathBranch branch)
+    {
+        if (branch.length < minBranchLength) return;
+
+        for (int i = activeBranches.Count - 1; i >= 0; i--)
+        {
+            PathBranch otherBranch = activeBranches[i];
+            if (otherBranch == branch || otherBranch.length < minBranchLength) continue;
+
+            // Check if any position in otherBranch is adjacent to the current branch's position
+            if (otherBranch.branchPathPositions.Any(pos => IsAdjacent(branch.position, pos)))
+            {
+                MergeBranches(branch, otherBranch);
+                Debug.Log($"Merged branches at {branch.position}");
+                return; // Exit after merging
+            }
+        }
+    }
+
+    bool IsAdjacent(Vector2Int pos1, Vector2Int pos2)
+    {
+        return Mathf.Abs(pos1.x - pos2.x) <= 1 && Mathf.Abs(pos1.y - pos2.y) <= 1;
+    }
+
+
+    bool AreBranchesClose(PathBranch branch1, PathBranch branch2)
+    {
+        // Check if branches are within one cell of each other
+        return Mathf.Abs(branch1.position.x - branch2.position.x) <= 1 &&
+               Mathf.Abs(branch1.position.y - branch2.position.y) <= 1;
+    }
+
+    void MergeBranches(PathBranch branch1, PathBranch branch2)
+    {
+        // Merge the positions of the shorter branch into the longer one
+        PathBranch longerBranch = branch1.length > branch2.length ? branch1 : branch2;
+        PathBranch shorterBranch = branch1.length > branch2.length ? branch2 : branch1;
+
+        // Add positions from shorter branch to the longer one (HashSet handles uniqueness)
+        longerBranch.branchPathPositions.UnionWith(shorterBranch.branchPathPositions);
+
+        // Update the length of the longer branch
+        longerBranch.length = longerBranch.branchPathPositions.Count;
+
+        // Remove the shorter branch
+        activeBranches.Remove(shorterBranch);
+    }
+
+    void CombineBranchPositions()
+    {
+        // Combine all branch positions into the main pathPositions list (more efficient with HashSet)
+        pathPositions.Clear();
+        foreach (var branch in activeBranches)
+        {
+            pathPositions.AddRange(branch.branchPathPositions); // Still need AddRange for the final list
+        }
+    }
+
 
     void AddAdjacentCellsToTowerZones()
     {
@@ -263,234 +428,6 @@ public class GridGenerator : MonoBehaviour
         Debug.Log($"Path generated with {pathPositions.Count} positions.");
         Debug.Log($"Tower placement zones: {towerPlacementZones.Count}");
     }
-
-
-
-    //// Variables for path generation
-    //private Vector2Int currentPosition;
-    //private int horizontalStraightCount;
-    //private int verticalStraightCount;
-    //private Vector2Int lastDirection;
-    //private bool justTurned;
-    //private int minStraightTilesAfterTurn;
-
-    //public float pathLengthFactor = 1.5f; // Factor to influence path length (closer to 1 means longer)
-    //public int maxHorizontalStraightTiles = 3; // Maximum horizontal tiles in a straight line
-    //public int maxVerticalStraightTiles = 15; // Maximum vertical tiles in a straight line
-    //public int minHorizontalStraightTiles = 2; // Minimum horizontal tiles in a straight line after a turn
-    //public int minVerticalStraightTiles = 10; // Minimum vertical tiles in a straight line after a turn
-
-    //void GeneratePath()
-    //{
-    //    InitializePathGeneration();
-
-    //    while (currentPosition.x > 0)
-    //    {
-    //        List<Vector2Int> nextSteps = GetNextSteps(currentPosition);
-
-    //        if (nextSteps.Count == 0)
-    //        {
-    //            ForceTurn();
-    //            nextSteps = GetNextSteps(currentPosition);
-    //        }
-
-    //        if (nextSteps.Count > 0)
-    //        {
-    //            TakeStep(nextSteps);
-    //        }
-    //        else
-    //        {
-    //            Debug.LogError("No valid steps available. Path generation failed.");
-    //            break;
-    //        }
-    //    }
-
-    //    AddAdjacentCellsToTowerZones();
-    //    LogPathGenerationResults();
-    //}
-
-    //void InitializePathGeneration()
-    //{
-    //    pathPositions = new List<Vector2Int>();
-    //    towerPlacementZones = new List<Vector2Int>();
-
-    //    currentPosition = new Vector2Int(gridSizeX - 1, UnityEngine.Random.Range(0, gridSizeZ));
-    //    pathPositions.Add(currentPosition);
-
-    //    horizontalStraightCount = 0;
-    //    verticalStraightCount = 0;
-    //    lastDirection = Vector2Int.zero;
-    //    justTurned = false;
-    //    minStraightTilesAfterTurn = 0;
-    //}
-
-    //List<Vector2Int> GetNextSteps(Vector2Int currentPosition)
-    //{
-    //    List<Vector2Int> nextSteps = new List<Vector2Int>();
-    //    Vector2Int[] possibleDirections = new Vector2Int[]
-    //    {
-    //    new Vector2Int(-1, 0),  // Move left (always allowed)
-    //    new Vector2Int(0, 1),  // Move up
-    //    new Vector2Int(0, -1)  // Move down
-    //    };
-
-    //    foreach (Vector2Int direction in possibleDirections)
-    //    {
-    //        if (IsDirectionValid(direction, currentPosition)) // Pass currentPosition to IsDirectionValid
-    //        {
-    //            Vector2Int newPos = currentPosition + direction;
-    //            if (IsValidStep(newPos))
-    //            {
-    //                nextSteps.Add(newPos);
-    //            }
-    //        }
-    //    }
-
-    //    return nextSteps;
-    //}
-
-
-    //bool IsDirectionValid(Vector2Int direction, Vector2Int currentPosition) // Add currentPosition parameter
-    //{
-    //    // Check if the direction exceeds the maximum allowed straight tiles
-    //    if (direction.x != 0 && horizontalStraightCount >= maxHorizontalStraightTiles) return false;
-    //    if (direction.y != 0 && verticalStraightCount >= maxVerticalStraightTiles) return false;
-
-    //    // Ensure that after a turn, the path continues in the same direction for at least the minimum required straight tiles
-    //    if (justTurned)
-    //    {
-    //        if (direction == lastDirection)
-    //        {
-    //            if (minStraightTilesAfterTurn < (lastDirection.x != 0 ? minHorizontalStraightTiles : minVerticalStraightTiles))
-    //            {
-    //                return true; // Must continue in this direction
-    //            }
-    //        }
-    //        else
-    //        {
-    //            return false; // Skip other directions if we haven't fulfilled the minimum straight tiles after a turn
-    //        }
-    //    }
-
-    //    // **EXCEPTION: Force move left if the next step would be the edge and we're not already moving left**
-    //    if (currentPosition.x == 1 && direction.x != -1)
-    //    {
-    //        return false;
-    //    }
-
-    //    return true;
-    //}
-
-    //bool IsValidStep(Vector2Int newPos)
-    //{
-    //    if (!IsValidCell(newPos) || pathPositions.Contains(newPos)) return false;
-
-    //    int adjacentPathTiles = 0;
-    //    Vector2Int[] possibleDirections = new Vector2Int[]
-    //    {
-    //    new Vector2Int(-1, 0),  // Move left (always allowed)
-    //    new Vector2Int(0, 1),  // Move up
-    //    new Vector2Int(0, -1)  // Move down
-    //    };
-
-    //    foreach (Vector2Int neighborDirection in possibleDirections)
-    //    {
-    //        Vector2Int neighborPos = newPos + neighborDirection;
-    //        if (pathPositions.Contains(neighborPos))
-    //        {
-    //            adjacentPathTiles++;
-    //        }
-    //    }
-
-    //    return adjacentPathTiles < 2;
-    //}
-
-    //void ForceTurn()
-    //{
-    //    horizontalStraightCount = 0;
-    //    verticalStraightCount = 0;
-    //    justTurned = true; // We're about to force a turn
-    //}
-
-    //void TakeStep(List<Vector2Int> nextSteps)
-    //{
-    //    Vector2Int chosenStep = nextSteps[UnityEngine.Random.Range(0, nextSteps.Count)];
-
-    //    // Calculate direction before updating currentPosition
-    //    Vector2Int direction = chosenStep - currentPosition;
-
-    //    currentPosition = chosenStep;
-    //    pathPositions.Add(currentPosition);
-
-    //    UpdateStraightTileCounts(direction);
-    //    UpdateTurnFlags(direction);
-    //}
-
-    //void UpdateStraightTileCounts(Vector2Int direction)
-    //{
-    //    if (direction.x != 0)
-    //    { // Moved left
-    //        horizontalStraightCount++;
-    //        verticalStraightCount = 0;
-
-    //        if (justTurned)
-    //        {
-    //            minStraightTilesAfterTurn++;
-    //        }
-    //    }
-    //    else if (direction.y != 0)
-    //    { // Moved up or down
-    //        verticalStraightCount++;
-    //        horizontalStraightCount = 0;
-
-    //        if (justTurned)
-    //        {
-    //            minStraightTilesAfterTurn++;
-    //        }
-    //    }
-    //}
-
-    //void UpdateTurnFlags(Vector2Int direction)
-    //{
-    //    if (lastDirection != Vector2Int.zero && direction != lastDirection)
-    //    {
-    //        justTurned = true; // We made a turn
-    //        minStraightTilesAfterTurn = 0; // Reset the counter after a turn
-    //    }
-    //    else if (!justTurned)
-    //    {
-    //        justTurned = false;
-    //    }
-
-    //    if (justTurned && minStraightTilesAfterTurn >= (lastDirection.x != 0 ? minHorizontalStraightTiles : minVerticalStraightTiles))
-    //    {
-    //        justTurned = false;
-    //        minStraightTilesAfterTurn = 0;
-    //    }
-
-    //    lastDirection = direction;
-    //}
-
-    //void AddAdjacentCellsToTowerZones()
-    //{
-    //    foreach (Vector2Int pos in pathPositions)
-    //    {
-    //        AddAdjacentCells(pos);
-    //    }
-    //}
-
-    //void LogPathGenerationResults()
-    //{
-    //    Debug.Log($"Path generated with {pathPositions.Count} positions.");
-    //    Debug.Log($"Tower placement zones: {towerPlacementZones.Count}");
-    //}
-
-
-
-
-
-
-
 
 
 
@@ -537,34 +474,7 @@ public class GridGenerator : MonoBehaviour
         }
     }
 
-    //static bool ShouldGenerateTower()
-    //{
-    //    double probability = 0.02;
-
-    //    System.Random random = new System.Random();
-    //    double randomValue = random.NextDouble(); // Generates a number between 0.0 and 1.0
-    //    return randomValue < probability;
-    //}
-    //static bool ShouldGenerateTower()
-    //{
-    //    double probability = 0.02;
-
-    //    System.Random random = new System.Random();
-    //    double randomValue = random.NextDouble(); // Generates a number between 0.0 and 1.0
-    //    return randomValue < probability;
-    //}
-
-
-    // public void InitializeGrid()
-    // {
-    //     foreach (Transform child in transform)
-    //     {
-    //         Destroy(child.gameObject); // Clear previous cells
-    //     }
-
-    //     GenerateGrid();
-    //     GeneratePath();
-    // }
+    
 
 
     public void InitializeGrid()
@@ -589,17 +499,6 @@ public class GridGenerator : MonoBehaviour
         VisualizeTowerZones();
     }
 
-    //void VisualizeTowerZones()
-    //{
-    //    foreach (Vector2Int towerCell in towerPlacementZones)
-    //    {
-    //        if (gridCells.TryGetValue(towerCell, out GameObject cell))
-    //        {
-    //            //cell.GetComponent<Renderer>().material.color = Color.yellow; // Yellow for tower zones
-    //            cell.GetComponent<Renderer>().material.color = new Color(0.0f, 0.5f, 0.0f);
-    //        }
-    //    }
-    //}
 
     void VisualizeTowerZones()
     {
@@ -631,48 +530,7 @@ public class GridGenerator : MonoBehaviour
     }
 
 
-    //void GeneratePath()
-    //{
-    //    pathPositions = new List<Vector2Int>();
-    //    towerPlacementZones = new List<Vector2Int>();
-
-    //    // Start path at random position on the left edge
-    //    Vector2Int currentPosition = new Vector2Int(0, Random.Range(0, gridSizeZ));
-    //    pathPositions.Add(currentPosition);
-
-
-    //    while (currentPosition.x < gridSizeX - 1) // Until we reach the other side
-    //    {
-    //        List<Vector2Int> nextSteps = GetValidSteps(currentPosition);
-    //        if (nextSteps.Count == 0)
-    //        {
-    //            Debug.LogError("No valid steps available. Path generation failed.");
-    //            break;
-    //        }
-
-    //        currentPosition = nextSteps[Random.Range(0, nextSteps.Count)];
-    //        pathPositions.Add(currentPosition);
-    //    }
-
-    //    // Add adjacent cells to towerPlacementZones
-    //    foreach (Vector2Int pos in pathPositions)
-    //    {
-    //        AddAdjacentCells(pos);
-    //    }
-
-    ////    Debug.Log($"Path generated with {pathPositions.Count} positions.");
-    ////    Debug.Log($"Tower placement zones: {towerPlacementZones.Count}");
-    //
-    //}
-
-
-
-
-
-
-
-
-
+    
     //##############################/##########################
 
     void AddAdjacentCells(Vector2Int position)
