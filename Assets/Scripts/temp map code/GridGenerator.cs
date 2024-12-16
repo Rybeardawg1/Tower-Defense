@@ -10,8 +10,15 @@ public class GridGenerator : MonoBehaviour
     public int gridSizeZ = 16;
     public float cellSize = 1f;
 
+
+    public float pathLengthFactor = 0.5f; // 0 = shortest, 1 = longest
+    public int minStraightLength = 3; // Minimum length of a straight path segment
+    public int maxStraightLength = 8; // Maximum length of a straight path segment
+    public int edgeAvoidance = 2; // Minimum distance from the edges of the grid
+
     //private List<Vector2Int> pathPositions;
     public List<Vector2Int> pathPositions { get; private set; } // Expose the path positions
+
     public List<Vector2Int> towerPositions { get; private set; } // Expose the path positions
     private Dictionary<Vector2Int, GameObject> gridCells = new Dictionary<Vector2Int, GameObject>(); // To track cells for coloring
     public List<Vector2Int> towerPlacementZones { get; private set; }
@@ -153,27 +160,175 @@ public class GridGenerator : MonoBehaviour
     }
 
 
+    //void GeneratePath()
+    //{
+    //    pathPositions = new List<Vector2Int>();
+    //    towerPlacementZones = new List<Vector2Int>();
+
+    //    // Start path at random position on the left edge
+    //    Vector2Int currentPosition = new Vector2Int(0, Random.Range(0, gridSizeZ));
+    //    pathPositions.Add(currentPosition);
+
+
+    //    while (currentPosition.x < gridSizeX - 1) // Until we reach the other side
+    //    {
+    //        List<Vector2Int> nextSteps = GetValidSteps(currentPosition);
+    //        if (nextSteps.Count == 0)
+    //        {
+    //            Debug.LogError("No valid steps available. Path generation failed.");
+    //            break;
+    //        }
+
+    //        currentPosition = nextSteps[Random.Range(0, nextSteps.Count)];
+    //        pathPositions.Add(currentPosition);
+    //    }
+
+    //    // Add adjacent cells to towerPlacementZones
+    //    foreach (Vector2Int pos in pathPositions)
+    //    {
+    //        AddAdjacentCells(pos);
+    //    }
+
+    ////    Debug.Log($"Path generated with {pathPositions.Count} positions.");
+    ////    Debug.Log($"Tower placement zones: {towerPlacementZones.Count}");
+    //
+    //}
+
+
+
+    private Vector2Int currentDirection = Vector2Int.zero;
+    private int currentStraightLength = 0;
+
     void GeneratePath()
     {
         pathPositions = new List<Vector2Int>();
         towerPlacementZones = new List<Vector2Int>();
 
-        // Start path at random position on the left edge
-        Vector2Int currentPosition = new Vector2Int(0, Random.Range(0, gridSizeZ));
+        // Start path at random position on the right edge, avoiding edges
+        Vector2Int currentPosition = new Vector2Int(gridSizeX - 1, Random.Range(edgeAvoidance, gridSizeZ - edgeAvoidance));
         pathPositions.Add(currentPosition);
 
+        Vector2Int endPosition = new Vector2Int(0, Random.Range(edgeAvoidance, gridSizeZ - edgeAvoidance)); // End on the left edge
 
-        while (currentPosition.x < gridSizeX - 1) // Until we reach the other side
+        int maxSteps = (int)(gridSizeX * gridSizeZ * (2 - pathLengthFactor));
+        int stepsTaken = 0;
+
+        while (currentPosition != endPosition && stepsTaken < maxSteps)
         {
-            List<Vector2Int> nextSteps = GetValidSteps(currentPosition);
-            if (nextSteps.Count == 0)
+            List<Vector2Int> potentialSteps = new List<Vector2Int>();
+
+            // If we've moved in the same direction for less than minStraightLength, keep going that way
+            if (currentStraightLength < minStraightLength)
             {
-                Debug.LogError("No valid steps available. Path generation failed.");
+                Vector2Int forcedStep = currentPosition + currentDirection;
+                if (IsValidCell(forcedStep) && !pathPositions.Contains(forcedStep))
+                {
+                    potentialSteps.Add(forcedStep);
+                }
+            }
+            else
+            {
+                // Possible moves: prioritize horizontal movement towards the end, then consider vertical
+                int directionX = currentPosition.x > endPosition.x ? -1 : 1;
+
+                Vector2Int horizontalStep = currentPosition + new Vector2Int(directionX, 0);
+                if (IsValidCell(horizontalStep) && !pathPositions.Contains(horizontalStep))
+                {
+                    potentialSteps.Add(horizontalStep);
+                }
+
+                // Add vertical steps with a bias based on pathLengthFactor and a resistance to change
+                if (Random.value < (1 - pathLengthFactor) && currentStraightLength < maxStraightLength)
+                {
+                    // Try to continue in the current vertical direction if possible
+                    Vector2Int verticalStep = currentPosition + currentDirection;
+                    if (IsValidCell(verticalStep) && !pathPositions.Contains(verticalStep))
+                    {
+                        potentialSteps.Add(verticalStep);
+                    }
+                    else
+                    {
+                        // If we can't continue, randomly choose a new vertical direction
+                        int directionY = Random.value < 0.5 ? -1 : 1;
+                        currentDirection = new Vector2Int(0, directionY);
+                        verticalStep = currentPosition + currentDirection;
+                        if (IsValidCell(verticalStep) && !pathPositions.Contains(verticalStep))
+                        {
+                            potentialSteps.Add(verticalStep);
+                        }
+                    }
+                }
+            }
+
+            // If no valid steps, force a move towards the end
+            if (potentialSteps.Count == 0)
+            {
+                int directionX = currentPosition.x > endPosition.x ? -1 : 1;
+                Vector2Int horizontalStep = currentPosition + new Vector2Int(directionX, 0);
+
+                // If a horizontal step is not possible, attempt a vertical step towards the end position's Y value
+                if (!IsValidCell(horizontalStep) || pathPositions.Contains(horizontalStep))
+                {
+                    int directionY = endPosition.y - currentPosition.y;
+                    directionY = directionY > 0 ? 1 : -1;
+                    Vector2Int verticalStep = currentPosition + new Vector2Int(0, directionY);
+
+                    if (IsValidCell(verticalStep) && !pathPositions.Contains(verticalStep))
+                    {
+                        potentialSteps.Add(verticalStep);
+                    }
+                }
+                else
+                {
+                    potentialSteps.Add(horizontalStep);
+                }
+            }
+
+            // Choose a random step from the potential steps
+            if (potentialSteps.Count > 0)
+            {
+                Vector2Int nextStep = potentialSteps[Random.Range(0, potentialSteps.Count)];
+
+                // Update current direction and straight length
+                if (nextStep - currentPosition != currentDirection)
+                {
+                    currentDirection = nextStep - currentPosition;
+                    currentStraightLength = 1;
+                }
+                else
+                {
+                    currentStraightLength++;
+                }
+
+                // Avoid getting too close to the edge
+                if (nextStep.y < edgeAvoidance || nextStep.y >= gridSizeZ - edgeAvoidance)
+                {
+                    // Force a change in direction away from the edge
+                    currentDirection = new Vector2Int(0, -currentDirection.y); // Reverse vertical direction
+                    currentStraightLength = 1; // Reset straight length
+                }
+
+                currentPosition = nextStep;
+                pathPositions.Add(currentPosition);
+                stepsTaken++;
+            }
+            else
+            {
+                // If still no valid steps, break the loop to avoid infinite loop (should be extremely rare)
                 break;
             }
 
-            currentPosition = nextSteps[Random.Range(0, nextSteps.Count)];
-            pathPositions.Add(currentPosition);
+            // Enforce the "only two neighbors" rule
+            if (pathPositions.Count >= 3)
+            {
+                Vector2Int previousPosition = pathPositions[pathPositions.Count - 2];
+                Vector2Int secondPreviousPosition = pathPositions[pathPositions.Count - 3];
+
+                if (AreAdjacent(currentPosition, secondPreviousPosition))
+                {
+                    pathPositions.Remove(previousPosition);
+                }
+            }
         }
 
         // Add adjacent cells to towerPlacementZones
@@ -186,7 +341,15 @@ public class GridGenerator : MonoBehaviour
         Debug.Log($"Tower placement zones: {towerPlacementZones.Count}");
     }
 
+    bool AreAdjacent(Vector2Int cell1, Vector2Int cell2)
+    {
+        return Mathf.Abs(cell1.x - cell2.x) + Mathf.Abs(cell1.y - cell2.y) == 1;
+    }
 
+
+
+
+    //##############################/##########################
 
     void AddAdjacentCells(Vector2Int position)
     {
