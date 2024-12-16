@@ -569,7 +569,7 @@ GameObject:
   - component: {fileID: 1464643787}
   - component: {fileID: 1464643786}
   - component: {fileID: 1464643785}
-  - component: {fileID: 1464643784}
+  - component: {fileID: 1464643788}
   m_Layer: 5
   m_Name: Start
   m_TagString: Untagged
@@ -597,19 +597,6 @@ RectTransform:
   m_AnchoredPosition: {x: -14.0869, y: -305.1714}
   m_SizeDelta: {x: 188.1738, y: 85.6571}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1464643784
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1464643782}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1a6c561e7c5904515b855549215250db, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  startButton: {fileID: 1464643785}
 --- !u!114 &1464643785
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -692,6 +679,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1464643782}
   m_CullTransparentMesh: 1
+--- !u!114 &1464643788
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1464643782}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed7842e45c28a4d5eb4dce1a50b15cda, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startButton: {fileID: 1464643785}
+  balanceText: {fileID: 0}
+  money: 0
 --- !u!1 &1727767473
 GameObject:
   m_ObjectHideFlags: 0

@@ -7,6 +7,8 @@ TagManager:
   - Thruster
   - GreenCell
   - TurretCell
+  - GameManager
+  - Orc
   layers:
   - Default
   - TransparentFX
