@@ -10082,11 +10082,12 @@ MonoBehaviour:
   towerPrefab: {fileID: 9067108159534999263, guid: bcbca6aa0b7bb6c42afce1f1a86c0851, type: 3}
   gridSizeX: 32
   gridSizeZ: 24
-  cellSize: 1
-  pathLengthFactor: 0.9
-  minStraightLength: 4
-  maxStraightLength: 8
-  edgeAvoidance: 2
+  cellSize: 1.01
+  pathLengthFactor: 0.5
+  maxHorizontalStraightTiles: 3
+  maxVerticalStraightTiles: 8
+  minHorizontalStraightTiles: 1
+  minVerticalStraightTiles: 3
 --- !u!1 &2089901484
 GameObject:
   m_ObjectHideFlags: 0
