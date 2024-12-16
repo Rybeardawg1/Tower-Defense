@@ -75,6 +75,9 @@ public class EnemyManager : MonoBehaviour
         //{
         //    node_grid[i] = node_parent.GetChild(i).position; // get the position of the child and add it to the array
         //}
+
+        // Convert path positions to world positions for enemies (using shortest path)
+        node_grid = new Vector3[pathPositions.Count];
         for (int i = 0; i < pathPositions.Count; i++)
         {
             Vector2Int gridPos = pathPositions[i];
