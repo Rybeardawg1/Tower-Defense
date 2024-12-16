@@ -27,22 +27,18 @@ public class Tower : MonoBehaviour
     GameObject FindClosestEnemy()
     {
         // Find all objects in the scene
-        GameObject[] allObjects = GameObject.FindObjectsOfType<GameObject>();
+        GameObject[] allObjects = GameObject.FindGameObjectsWithTag("Orc");
         GameObject closest = null;
         float closestDistance = range;
 
         foreach (GameObject obj in allObjects)
         {
-            //// Check if the object name is not null
-            if (obj.name.StartsWith("Jet") || obj.name.StartsWith("Orc"))
-            {
                 float distance = Vector3.Distance(transform.position, obj.transform.position);
                 if (distance < closestDistance)
                 {
                     closest = obj;
                     closestDistance = distance;
                 }
-            }
         }
 
         return closest;
@@ -53,5 +49,8 @@ public class Tower : MonoBehaviour
         // Instantiate the projectile and set its target
         GameObject projectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
         projectile.GetComponent<Projectile>().Initialize(target);
+        Vector3 newPosition = projectile.transform.position;
+        newPosition.y = 1; // Update the Y coordinate
+        projectile.transform.position = newPosition;
     }
 }

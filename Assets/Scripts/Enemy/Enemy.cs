@@ -21,6 +21,7 @@ public class Enemy : MonoBehaviour
     public AudioClip reached_goal_sound;      // Sound for reaching the end
 
     private AudioSource sfx_source;    // For sound effects
+    private GameManager gameManager;
 
 
     //public AudioClip hitsound;
@@ -36,6 +37,14 @@ public class Enemy : MonoBehaviour
     {
         healthBar = GetComponentInChildren<HealthBar>();
         // fetch the slider component from the health bar object
+
+        GameObject game_manager = GameObject.FindGameObjectWithTag("GameManager");
+        gameManager = game_manager.GetComponent<GameManager>();
+        if (gameManager == null)
+        {
+            Debug.LogError("Internal error: could not find the GameManager object - did you remove its 'GameManager' tag?");
+            return;
+        }
     }
 
     // initialize 
@@ -134,6 +143,7 @@ public class Enemy : MonoBehaviour
         {
             // Reached end of path, remove enemy
             EnemyManager.enqueue_enemy_to_kill(this);
+            gameManager.UpdateGameHealth(-5);
             if (reached_goal_sound != null)
             {
                 Debug.Log("Playing Reached Goal Sound");

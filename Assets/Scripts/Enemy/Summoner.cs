@@ -98,6 +98,8 @@ public class Summoner : MonoBehaviour
             else // Spawn new enemy
             {
                 GameObject new_spawned = Instantiate(enemy_prefabs[Enimy_ID], EnemyManager.node_grid[0], Quaternion.identity);
+                new_spawned.name = "Orc_Enemy";
+                new_spawned.tag = "Orc";
                 Spawned_enemy = new_spawned.GetComponent<Enemy>();
             }
 

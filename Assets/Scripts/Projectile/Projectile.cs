@@ -1,14 +1,20 @@
+using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
     public float speed = 10f; // Speed of the projectile
     public int damage = 1; // Damage dealt to enemies
-    private GameObject target;
+    public GameObject target;
 
     public void Initialize(GameObject enemyTarget)
     {
         target = enemyTarget;
+    }
+
+    public void Awake(){
+        target = null;
     }
 
     void Update()
@@ -27,7 +33,6 @@ public class Projectile : MonoBehaviour
         if (Vector3.Distance(transform.position, target.transform.position) < 0.1f)
         {
             ApplyDamage();
-            Destroy(gameObject); // Destroy after hitting
         }
     }
 
@@ -38,5 +43,6 @@ public class Projectile : MonoBehaviour
         {
             enemy.TakeDamage(damage);
         }
+        Destroy(gameObject); // Destroy after hitting
     }
 }
