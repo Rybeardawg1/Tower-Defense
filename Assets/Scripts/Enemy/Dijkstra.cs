@@ -103,6 +103,15 @@ public class PriorityQueue<T>
             }
         }
 
+        // Randomly choose a different path for the enemy so it surprises the player
+        float random_chance = 0.5f;
+
+        if (Random.value < random_chance)
+        {
+            Debug.Log("Randomly choosing a different path for the enemy.");
+            bestIndex = Random.Range(0, elements.Count);
+        }
+
         T bestItem = elements[bestIndex].Key;
         elements.RemoveAt(bestIndex);
         return bestItem;

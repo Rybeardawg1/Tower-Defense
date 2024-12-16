@@ -8,6 +8,7 @@ public class HealthBar : MonoBehaviour
     [SerializeField] private Slider health_bar_slider;
     [SerializeField] private Camera main_camera;
     [SerializeField] private Transform target; // this is the enemy object itself that the health bar is attached to
+
     // Start is called before the first frame update
     void Start()
     {
@@ -23,7 +24,7 @@ public class HealthBar : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //transform.rotation = main_camera.transform.rotation; //didnt work
+        //transform.rotation = main_camera.transform.rotation; //didnt work (was meant to make the health bar face the camera always)
         transform.position = target.position + new Vector3(0, 4f, 0);
 
     }

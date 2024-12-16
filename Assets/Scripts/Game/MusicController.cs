@@ -9,34 +9,24 @@ public class MusicController : MonoBehaviour
 
     void Awake()
     {
-        // Ensure only one instance of MusicController exists
-        if (instance != null && instance != this)
-        {
-            Destroy(gameObject); // Destroy duplicate instance
-        }
-        else
-        {
-            instance = this;
-            DontDestroyOnLoad(gameObject); // Persist across scenes
-        }
+        
     }
 
     void Start()
     {
-        // Add an AudioSource component if not already attached
+        // Add an AudioSource
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
         {
             audioSource = gameObject.AddComponent<AudioSource>();
         }
 
-
         audioSource.clip = background_music;
         audioSource.playOnAwake = true;
         audioSource.loop = true;
         audioSource.volume = 0.3f;
 
-        // Play
+        // Play the background music
         if (!audioSource.isPlaying)
         {
             audioSource.Play();

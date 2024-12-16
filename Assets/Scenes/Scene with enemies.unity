@@ -11230,7 +11230,7 @@ MonoBehaviour:
   maxVerticalStraightTiles: 10
   minHorizontalStraightTiles: 2
   minVerticalStraightTiles: 2
-  pathBranchingProbability: 0.08
+  pathBranchingProbability: 0.2
   minBranchLength: 20
   maxBranches: 2
 --- !u!1 &2089901484
