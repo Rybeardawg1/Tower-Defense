@@ -522,6 +522,25 @@ public class GridGenerator : MonoBehaviour
 
             }
         }
+
+        // Process tower placement zones
+        foreach (Vector2Int pos in towerPlacementZones)
+        {
+            if (gridCells.TryGetValue(pos, out GameObject cell))
+            {
+                // Change the color of the tower placement tiles (optional, for visualization)
+                cell.GetComponent<Renderer>().material.color = new Color(0.0f, 0.5f, 0.0f); // Green for tower zones
+
+                // Remove grass or rocks from tower placement zones
+                foreach (Transform child in cell.transform)
+                {
+                    Destroy(child.gameObject); // Destroy all child objects (grass, rocks, etc.)
+                }
+            }
+        }
+
+
+
         VisualizeTowerZones();
     }
 
