@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour
 
     }
 
-    public void UpdateGameHealth(int hel)
+    public void ReduceGameHealth(int hel)
     {
         if (health - hel > 0)
         {

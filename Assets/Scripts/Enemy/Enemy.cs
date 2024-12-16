@@ -74,13 +74,15 @@ public class Enemy : MonoBehaviour
 
     void Update()
     {
-        if (health <= 0)
-        {
-            isAlive = false;
-            animation_controller.SetBool("Die", true);
-            animation_controller.SetBool("Walk", false);
-            Destroy(gameObject, 1.5f);
-        }
+            if (health <= 0 && isAlive)
+            {
+                health = 0;
+                isAlive = false;
+                animation_controller.SetBool("Die", true);
+                animation_controller.SetBool("Walk", false);
+                gameManager.UpdateBalance(20);
+                Destroy(gameObject, 1.5f);
+            }
         //else 
         //{
         //    animation_controller.SetBool("Die", false);
@@ -138,7 +140,7 @@ public class Enemy : MonoBehaviour
         {
             // Reached end of path, remove enemy
             EnemyManager.enqueue_enemy_to_kill(this);
-            gameManager.UpdateGameHealth(-5);
+            gameManager.ReduceGameHealth(5);
             if (reached_goal_sound != null)
             {
                 Debug.Log("Playing Reached Goal Sound");
@@ -146,27 +148,22 @@ public class Enemy : MonoBehaviour
             }
         }
     }
-    //////////
 
-    // som/ash
     public void TakeDamage(int damage)
     {
-        health -= damage;
-        healthBar.UpdateHealth(health, max_health);
-
-        if (hit_sound != null)
+        if (isAlive)
         {
-            sfx_source.PlayOneShot(hit_sound);
-        }
+            health -= damage;
+            healthBar.UpdateHealth(health, max_health);
 
-        if (health <= 0)
-        {
-            //Destroy(health_bar_slider.gameObject); // Remove health bar
+            if (hit_sound != null)
+            {
+                sfx_source.PlayOneShot(hit_sound);
+            }
 
-            health = 0;
+            if(health <= 0){
+                health = 0;
+            }
         }
     }
-    //
-
-
 }
