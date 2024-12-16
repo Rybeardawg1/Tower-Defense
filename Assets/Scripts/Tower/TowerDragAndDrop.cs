@@ -1,6 +1,6 @@
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using System.Collections;
 
 public class TowerDragAndDrop : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
@@ -8,11 +8,11 @@ public class TowerDragAndDrop : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     private CanvasGroup canvasGroup;
     private Canvas canvas;
 
-    private Vector3 originalPosition;  // To store original position of the button
+    private Vector3 originalPosition;  // Store the original position of the button
+    private Vector2 originalAnchoredPosition;
+    public GameObject towerPrefab;    // Tower prefab to place
 
-    public GameObject towerPrefab; // The tower prefab to be placed
-
-    private GridGenerator gridGenerator;  // Reference to GridGenerator to access valid zones
+    private GridGenerator gridGenerator;  // Reference to the GridGenerator for valid zones
 
     private void Awake()
     {
@@ -20,19 +20,21 @@ public class TowerDragAndDrop : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         canvasGroup = GetComponent<CanvasGroup>();
         canvas = GetComponentInParent<Canvas>();
 
-        originalPosition = transform.position; // Store the original position
-        gridGenerator = FindObjectOfType<GridGenerator>(); // Get GridGenerator reference
+        originalPosition = rectTransform.position; // Save the button's original position
+        originalAnchoredPosition = rectTransform.anchoredPosition; // Anchored position
+        gridGenerator = FindObjectOfType<GridGenerator>(); // Find the grid generator
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
         canvasGroup.alpha = 0.6f; // Make the button semi-transparent
-        canvasGroup.blocksRaycasts = false; // Allow other objects to interact with raycasts
+        canvasGroup.blocksRaycasts = false; // Allow raycasts to pass through
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor; // Move the button with the mouse
+        // Move the button with the mouse
+        rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -44,52 +46,46 @@ public class TowerDragAndDrop : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
-            SpawnTower(hit.point);  // Place the tower at the hit point
+            PlaceTower(hit.point); // Attempt to place the tower at the hit point
         }
+
+        // Reset the button to its original position in the UI
+        ResetButtonPosition();
     }
 
-    private void SpawnTower(Vector3 position)
+    private void PlaceTower(Vector3 position)
     {
         float cellSize = 1f;
 
         // Snap position to the grid
         Vector2Int gridPosition = new Vector2Int(
-            Mathf.FloorToInt((position.x + cellSize / 2) / cellSize),
-            Mathf.FloorToInt((position.z + cellSize / 2) / cellSize)
+            Mathf.RoundToInt(position.x / cellSize),
+            Mathf.RoundToInt(position.z / cellSize)
         );
 
-        // Validate placement
-        if (gridGenerator.towerPlacementZones.Contains(gridPosition) &&
-            !gridGenerator.pathPositions.Contains(gridPosition)) // Ensure it's not a path position
+        // Validate if the grid position is a valid tower placement zone
+        if (gridGenerator.towerPlacementZones.Contains(gridPosition))
         {
             position.x = gridPosition.x * cellSize;
             position.z = gridPosition.y * cellSize;
             position.y = 0; // Align with ground level
 
-            // Instantiate the tower
+            // Instantiate the tower at the position
             Instantiate(towerPrefab, position, Quaternion.identity);
-
-            // Hide the button after tower is placed
-            gameObject.SetActive(false);  // Hide the TowerButton
-
-            // Return the button to its original position after some delay
-            StartCoroutine(ReturnButtonToOriginalPosition());
         }
         else
         {
-            Debug.LogWarning($"Invalid placement! Cannot place tower at {gridPosition}. Not a valid zone.");
+            Debug.LogWarning($"Invalid placement! Cannot place tower at {gridPosition}.");
         }
     }
 
-    private IEnumerator ReturnButtonToOriginalPosition()
+    private void ResetButtonPosition()
     {
-        // Wait for a short time before returning the button
-        yield return new WaitForSeconds(1f);
+        // Reset the button position to its original UI position
+        // rectTransform.position = originalPosition; // Resets the world position
+        rectTransform.anchoredPosition = originalAnchoredPosition;
+        rectTransform.localPosition = new Vector3(originalAnchoredPosition.x, originalAnchoredPosition.y, 0);
 
-        // Move the button back to its original position
-        transform.position = originalPosition;
-
-        // Make the button visible again
-        gameObject.SetActive(true);
+        // rectTransform.anchoredPosition = Vector2.zero; // Resets local position (optional, if UI hierarchy affects placement)
     }
 }
