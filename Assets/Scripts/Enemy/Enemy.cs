@@ -29,10 +29,6 @@ public class Enemy : MonoBehaviour
 
     [SerializeField] HealthBar healthBar;
 
-
-    //private GameObject HealthBar;
-    //private Slider health_bar_slider;
-
     private void Awake()
     {
         healthBar = GetComponentInChildren<HealthBar>();
@@ -50,9 +46,6 @@ public class Enemy : MonoBehaviour
     // initialize 
     public void Init()
     {
-        //         max_health = 20;
-        //         health = max_health;
-        //         Debug.Log($"{gameObject.name} initialized with {health} health.");
         // set the position of the enemy to the first node
         transform.position = EnemyManager.node_grid[0];
         Node_index = 0; // to reset the node index to the first node when the enemy is spawned
@@ -90,15 +83,6 @@ public class Enemy : MonoBehaviour
         //}
 
         // Update health bar value
-        //if (health_bar_slider != null)
-        //{
-        //    // Make the health bar face the camera
-        //    health_bar_slider.transform.parent.LookAt(Camera.main.transform);
-        //    health_bar_slider.transform.parent.Rotate(0, 180, 0); // Correct for default backward orientation
-
-        //    // Update the slider value (health)
-        //    health_bar_slider.value = health / max_health;
-        //}
         healthBar.UpdateHealth(health, max_health);
         Perform_movement();
     }
@@ -112,6 +96,8 @@ public class Enemy : MonoBehaviour
             Move_on_path();
         }
     }
+
+
 
 
     void Move_on_path()

@@ -71,7 +71,6 @@ public class EnemyManager : MonoBehaviour
         StartCoroutine(EnemyLoop()); // this is the IEnumerator loop below that will run the game loop for the enemies
 
         // Test summoning an enemy repeatedly
-        //InvokeRepeating("Summon_test", 0, 1); // this will call the Summon_test function every 1 second starting from 0 seconds
         // make call time random
         //InvokeRepeating("Summon_test", 0, 1);
         // i want a random time between 0.7 and 1 seconds so we need a coroutine
@@ -119,7 +118,6 @@ public class EnemyManager : MonoBehaviour
             enqueue_enemy_to_spawn(nextEnemyID); // Add the next enemy ID to the queue
             float waitTime = GetRandomSummonTime();
 
-            //Summon_test(); // Call the summon test function
             //float waitTime = GetRandomSummonTime(); // Get a new random time
             yield return new WaitForSeconds(3f); // Wait for that time before the next summon
         }
@@ -128,17 +126,6 @@ public class EnemyManager : MonoBehaviour
     {
         return Random.Range(0.7f, 3f); // not working
     }
-    //void remove_test()
-    //{
-    //    if (Summoner.enemies_alive.Count > 0)
-    //    {
-    //        Summoner.remove_enemy(Summoner.enemies_alive[Random.Range(0, Summoner.enemies_alive.Count)]);
-    //    }
-    //}
-    //void Summon_test()
-    //{
-    //    enqueue_enemy_to_spawn(1); // 1 is the id we gave to the enemy in the Enemy_spawn_data scriptable object we created
-    //}
 
 
     IEnumerator EnemyLoop()
@@ -183,104 +170,8 @@ public class EnemyManager : MonoBehaviour
                 enemy.Perform_movement(); // Call the new method
             }
         }
-        ////Debug.Log($"Updating {Summoner.enemies_alive.Count} enemies.");
-
-        //// Implement enemy movement and AI updates here
-        //NativeArray<int> node_indexes = new NativeArray<int>(Summoner.enemies_alive.Count, Allocator.TempJob); // This is for storing the node index of each enemy
-        //NativeArray<float> enemy_speeds = new NativeArray<float>(Summoner.enemies_alive.Count, Allocator.TempJob); // This is for storing the speed of each enemy
-        //NativeArray<Vector3> to_use_nodes = new NativeArray<Vector3>(node_grid, Allocator.TempJob); // This is for storing the nodes that the enemies will follow (get from the generated map?)
-        //TransformAccessArray enemy_access = new TransformAccessArray(Summoner.enemies_alive_transform.ToArray()); // This is for storing the transforms of the enemies
-
-        //// create array just to recognize flying enemies
-        //NativeArray<bool> is_flying = new NativeArray<bool>(Summoner.enemies_alive.Count, Allocator.TempJob);
-
-
-        ////NativeArray<Animator> animators = new NativeArray<Animator>(Summoner.enemies_alive.Count, Allocator.TempJob);
-        ////for (int i = 0; i < Summoner.enemies_alive.Count; i++)
-        ////{
-        ////    animators[i] = Summoner.enemies_alive[i].animator;
-        ////}
-
-        //// update the node index and speed of each enemy using for loop
-        //for (int i = 0; i < Summoner.enemies_alive.Count; i++)
-        //{
-        //    node_indexes[i] = Summoner.enemies_alive[i].Node_index;
-
-        //    enemy_speeds[i] = Summoner.enemies_alive[i].speed;
-
-        //    // check if the enemy is flying
-        //    is_flying[i] = Summoner.enemies_alive[i].name.Contains("Jet");
-        //    // also flies if contains drone
-        //    is_flying[i] = is_flying[i] || Summoner.enemies_alive[i].name.Contains("Drone");
-        //}
-
-
-        //MoveJob moveJob = new MoveJob
-        //{
-        //    node_index = node_indexes,
-        //    enemy_speed = enemy_speeds,
-        //    node_grid = to_use_nodes,
-        //    deltaTime = Time.deltaTime,
-
-        //    is_fly = is_flying
-        //};
-
-        //JobHandle Move_handle = moveJob.Schedule(enemy_access); // this will schedule the job to run on the enemy_access transforms
-        //Move_handle.Complete(); // this will complete the job
-
-
-
-        //// set all the data to the enemies
-        //for (int i = 0; i < Summoner.enemies_alive.Count; i++)
-        //{
-        //    Enemy enemy = Summoner.enemies_alive[i];
-        //    //Vector3 previousPosition = enemy.transform.position; //
-
-        //    enemy.Node_index = node_indexes[i];
-        //    // check if the enemy has reached the end of the path
-        //    if (enemy.Node_index >= node_grid.Length)
-        //    {
-        //        // remove the enemy using enqueue_enemy_to_kill function
-        //        enqueue_enemy_to_kill(enemy);
-        //    }
-
-        //    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-        //    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-        //    enemy.speed = enemy_speeds[i];
-
-
-        //}
-
-        ////foreach (var enemy in Summoner.enemies_alive)
-        ////{
-        ////    if (enemy.animator == null)
-        ////    {
-        ////        Debug.LogError($"Animator missing on enemy {enemy.name}");
-        ////    }
-        ////    else if (!enemy.animator.isActiveAndEnabled)
-        ////    {
-        ////        Debug.LogError($"Animator not active on enemy {enemy.name}");
-        ////    }
-        ////}
-
-
-        //// dispose the arrays
-        //node_indexes.Dispose();
-        //enemy_speeds.Dispose();
-        //to_use_nodes.Dispose();
-        //enemy_access.Dispose();
-
-        //is_flying.Dispose();
-
-        ////animators.Dispose()
 
     }
-
-
 
 
 
@@ -310,84 +201,84 @@ public class EnemyManager : MonoBehaviour
 }
 
 
-public struct MoveJob : IJobParallelForTransform
-{
-    [NativeDisableParallelForRestriction]
-    public NativeArray<int> node_index;
-    [NativeDisableParallelForRestriction]
-    public NativeArray<float> enemy_speed;
-    //[NativeDisableParallelForRestriction]
-    //public NativeArray<Vector3> to_use_nodes;
-    [NativeDisableParallelForRestriction]
-    public NativeArray<Vector3> node_grid;
+//public struct MoveJob : IJobParallelForTransform
+//{
+//    [NativeDisableParallelForRestriction]
+//    public NativeArray<int> node_index;
+//    [NativeDisableParallelForRestriction]
+//    public NativeArray<float> enemy_speed;
+//    //[NativeDisableParallelForRestriction]
+//    //public NativeArray<Vector3> to_use_nodes;
+//    [NativeDisableParallelForRestriction]
+//    public NativeArray<Vector3> node_grid;
 
-    //[NativeDisableParallelForRestriction]
-    //public NativeArray<Animator> animators;
+//    //[NativeDisableParallelForRestriction]
+//    //public NativeArray<Animator> animators;
 
-    [NativeDisableParallelForRestriction]
-    public NativeArray<bool> is_fly;
+//    [NativeDisableParallelForRestriction]
+//    public NativeArray<bool> is_fly;
 
-    public float deltaTime;
+//    public float deltaTime;
 
-    public void Execute(int index, TransformAccess transform)
-    {
-        // Adjust y position for "Jet" enemies
+//    public void Execute(int index, TransformAccess transform)
+//    {
+//        // Adjust y position for "Jet" enemies
 
-        //Debug.Log($"Moving enemy at index {index}");
-        // check if the enemy has reached the end of the path
-        if (node_index[index] >= node_grid.Length) // so only move the enemy if it has not reached the end of the path
-        {
-            return;
-        }
-        else
-        {
-            // Implement enemy movement logic here
-            // Move the enemy towards the next node
-            Vector3 move_direction = node_grid[node_index[index]];
+//        //Debug.Log($"Moving enemy at index {index}");
+//        // check if the enemy has reached the end of the path
+//        if (node_index[index] >= node_grid.Length) // so only move the enemy if it has not reached the end of the path
+//        {
+//            return;
+//        }
+//        else
+//        {
+//            // Implement enemy movement logic here
+//            // Move the enemy towards the next node
+//            Vector3 move_direction = node_grid[node_index[index]];
 
-            if (is_fly[index])
-            {
-                //change the y in move_direction to 2
-                move_direction.y = 2;
+//            if (is_fly[index])
+//            {
+//                //change the y in move_direction to 2
+//                move_direction.y = 2;
 
-                // change current position y to 2 and randomize x and z a bit
-                transform.position = new Vector3(transform.position.x, 2, transform.position.z);
+//                // change current position y to 2 and randomize x and z a bit
+//                transform.position = new Vector3(transform.position.x, 2, transform.position.z);
 
-            }
-            else
-            {
-                //change the y in move_direction to 0
-                move_direction.y = 0;
-            }
-
-
-            transform.position = Vector3.MoveTowards(transform.position, move_direction, enemy_speed[index] * deltaTime);
-
-            // Rotate the enemy to face the movement direction
-            Vector3 direction = move_direction - transform.position;
-            if (direction != Vector3.zero) // Prevent rotation when the position matches the move_direction
-            {
-                // rotation speed is based on the angle between the forward vector and the direction to the next node
-                float rotation_speed = 0.05f * Vector3.Angle(Vector3.forward, direction) / 180; // 0.1f is the base rotation speed
-                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), rotation_speed);
-                // direction = move_direction;
-
-            }
+//            }
+//            else
+//            {
+//                //change the y in move_direction to 0
+//                move_direction.y = 0;
+//            }
 
 
-            // Check if the enemy has reached the node
-            //if (Vector3.Distance(transform.position, move_direction) < 0.1f)
-            if (transform.position == move_direction)
-            {
-                // Increment the node index
-                //node_index[index] = (node_index[index] + 1) % node_grid.Length;
-                node_index[index] = node_index[index] + 1;
-                //Debug.Log($"Enemy reached node {node_index[index]}");
+//            transform.position = Vector3.MoveTowards(transform.position, move_direction, enemy_speed[index] * deltaTime);
 
-            }
+//            // Rotate the enemy to face the movement direction
+//            Vector3 direction = move_direction - transform.position;
+//            if (direction != Vector3.zero) // Prevent rotation when the position matches the move_direction
+//            {
+//                // rotation speed is based on the angle between the forward vector and the direction to the next node
+//                float rotation_speed = 0.05f * Vector3.Angle(Vector3.forward, direction) / 180; // 0.1f is the base rotation speed
+//                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), rotation_speed);
+//                // direction = move_direction;
+
+//            }
+
+
+//            // Check if the enemy has reached the node
+//            //if (Vector3.Distance(transform.position, move_direction) < 0.1f)
+//            if (transform.position == move_direction)
+//            {
+//                // Increment the node index
+//                //node_index[index] = (node_index[index] + 1) % node_grid.Length;
+//                node_index[index] = node_index[index] + 1;
+//                //Debug.Log($"Enemy reached node {node_index[index]}");
+
+//            }
 
 
 
-        }
-    }
-}
+//        }
+//    }
+//}
