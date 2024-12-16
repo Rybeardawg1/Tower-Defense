@@ -34,8 +34,15 @@ public class EnemyManager : MonoBehaviour
         Debug.Log("Initializing grid and path...");
         gridGenerator.InitializeGrid();
 
-        // Fetch path after reinitialization
-        List<Vector2Int> pathPositions = gridGenerator.pathPositions;
+        // Get path after reinitialization
+        //List<Vector2Int> pathPositions = gridGenerator.pathPositions;
+        //if (pathPositions == null || pathPositions.Count == 0)
+        //{
+        //    Debug.LogError("Path generation failed. Ensure GridGenerator is set up properly.");
+        //    return;
+        //}
+
+        List<Vector2Int> pathPositions = gridGenerator.shortestPath; // Use shortestPath now
         if (pathPositions == null || pathPositions.Count == 0)
         {
             Debug.LogError("Path generation failed. Ensure GridGenerator is set up properly.");
@@ -53,7 +60,15 @@ public class EnemyManager : MonoBehaviour
 
 
         // Convert path positions to world positions for enemies
-        node_grid = new Vector3[pathPositions.Count];
+        //node_grid = new Vector3[pathPositions.Count];
+
+
+
+
+
+
+
+
         //node_grid = new Vector3[node_parent.childCount]; // the size of the array is the number of children in the node_parent object
 
         //for (int i = 0; i < node_grid.Length; i++) 

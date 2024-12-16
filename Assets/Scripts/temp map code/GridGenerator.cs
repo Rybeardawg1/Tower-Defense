@@ -12,7 +12,7 @@ public class GridGenerator : MonoBehaviour
     public float cellSize = 1f;
 
 
-
+    public List<Vector2Int> shortestPath { get; private set; } // Store the shortest path
 
     //private List<Vector2Int> pathPositions;
     public List<Vector2Int> pathPositions { get; private set; } // Expose the path positions
@@ -436,6 +436,25 @@ public class GridGenerator : MonoBehaviour
 
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+    void CalculateShortestPath()
+    {
+        shortestPath = Dijkstra.FindShortestPath(pathPositions, new Vector2Int(gridSizeX - 1, pathPositions[0].y), Vector2Int.zero);
+
+        // Visualize the shortest path (optional - for debugging)
+        if (shortestPath != null)
+        {
+            foreach (Vector2Int pos in shortestPath)
+            {
+                if (gridCells.TryGetValue(pos, out GameObject cell))
+                {
+                    cell.GetComponent<Renderer>().material.color = Color.cyan; // Highlight shortest path
+                }
+            }
+        }
+    }
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -487,6 +506,7 @@ public class GridGenerator : MonoBehaviour
         gridCells.Clear();
         GenerateGrid();
         GeneratePath();
+        CalculateShortestPath(); // Recalculate if grid is reinitialized
         foreach (Vector2Int pos in pathPositions)
         {
             if (gridCells.TryGetValue(pos, out GameObject cell))
