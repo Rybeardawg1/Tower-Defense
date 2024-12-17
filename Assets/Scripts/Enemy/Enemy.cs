@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class Enemy : MonoBehaviour
 {
-    public int Node_index; // for the pathfinding
+    public int Node_index; // for pathfinding
     public float max_health;
     public float speed;
     public int ID;
@@ -17,8 +17,8 @@ public class Enemy : MonoBehaviour
 
 
     [Header("Sound Effects")]
-    public AudioClip hit_sound;      // Sound for getting hit
-    public AudioClip reached_goal_sound;      // Sound for reaching the end
+    public AudioClip hit_sound;
+    public AudioClip reached_goal_sound;
 
     private AudioSource sfx_source;    // For sound effects
     private GameManager gameManager;
@@ -77,7 +77,7 @@ public class Enemy : MonoBehaviour
                 animation_controller.SetBool("Die", true);
                 animation_controller.SetBool("Walk", false);
                 gameManager.UpdateBalance(20);
-                Destroy(gameObject, 1.5f);
+                Destroy(gameObject, 2.5f);
             }
         //else 
         //{

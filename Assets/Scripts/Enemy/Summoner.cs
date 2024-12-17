@@ -5,13 +5,12 @@ using UnityEngine.Pool;
 
 public class Summoner : MonoBehaviour
 {
-    public static Dictionary<int, GameObject> enemy_prefabs; // int is the ID of the enemy, GameObject is the prefab of the enemy
-    public static Dictionary<int, Queue<Enemy>> enemy_pools; // int is the ID of the enemy, Queue<Enemy> is the pool of the enemy
-    public static List<Enemy> enemies_alive; // list of enemies that are in the scene
-    public static List<Transform> enemies_alive_transform; // to move the enemies in the scene
-
+    public static Dictionary<int, GameObject> enemy_prefabs;
+    public static Dictionary<int, Queue<Enemy>> enemy_pools;
+    public static List<Enemy> enemies_alive;
+    public static List<Transform> enemies_alive_transform;
     private static bool initialized;
-    
+
     public static void Init()
     {
         if (!initialized)
@@ -21,12 +20,12 @@ public class Summoner : MonoBehaviour
             enemies_alive_transform = new List<Transform>();
             enemies_alive = new List<Enemy>();
 
-            // get an array of all the enemies in the resources folder (type Enemy_spawn_data)
+            // get an array of all the enemies
             Enemy_spawn_data[] enemies = Resources.LoadAll<Enemy_spawn_data>("Enemies"); // (this is a folder in the resources folder)
             Debug.Log("There are " + enemies.Length + " enemies in the resources folder");
             Debug.Log("The first enemy is called " + enemies[0].name + " and has an ID of " + enemies[0].Enemy_ID);
 
-            // populate the enemy_prefabs dictionary to have the enemy ID as the key and the enemy prefab as the value
+            // populate the enemy_prefabs dictionary
             foreach (Enemy_spawn_data enemy in enemies)
             {
                 enemy_prefabs.Add(enemy.Enemy_ID, enemy.enemy_prefab);
@@ -93,15 +92,13 @@ public class Summoner : MonoBehaviour
         return Spawned_enemy;
     }
 
-
-
     // now removing the enemy from the scene
     public static void remove_enemy(Enemy enemy_to_kill)
     {
         enemy_pools[enemy_to_kill.ID].Enqueue(enemy_to_kill);
-        enemy_to_kill.gameObject.SetActive(false);// set the enemy to inactive
-        enemies_alive_transform.Remove(enemy_to_kill.transform);// remove the enemy from the list of transforms of enemies alive
-        enemies_alive.Remove(enemy_to_kill);// remove the enemy from the list of enemies alive
+        enemy_to_kill.gameObject.SetActive(false);
+        enemies_alive_transform.Remove(enemy_to_kill.transform);
+        enemies_alive.Remove(enemy_to_kill);
 
     }
 

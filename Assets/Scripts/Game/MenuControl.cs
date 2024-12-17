@@ -18,14 +18,16 @@ public class MenuControl : MonoBehaviour
         playButton.onClick.AddListener(playGame);
     }
 
-    void pauseGame() {
+    void pauseGame()
+    {
         isPaused = true;
         Time.timeScale = 0;
         pauseButton.gameObject.SetActive(false);
         playButton.gameObject.SetActive(true);
     }
 
-    void playGame() {
+    void playGame()
+    {
         isPaused = false;
         Time.timeScale = 1;
         pauseButton.gameObject.SetActive(true);
@@ -35,6 +37,6 @@ public class MenuControl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 }

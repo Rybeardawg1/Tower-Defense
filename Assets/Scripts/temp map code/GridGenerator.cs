@@ -25,7 +25,6 @@ public class GridGenerator : MonoBehaviour
     {
         GenerateGrid();
         GeneratePath();
-        //DecorateGrid();
 
     }
 
@@ -39,11 +38,11 @@ public class GridGenerator : MonoBehaviour
     public int maxVerticalStraightTiles = 15;
     public int minHorizontalStraightTiles = 2;
     public int minVerticalStraightTiles = 10;
-    public float pathBranchingProbability = 0.2f; // Probability of branching at any given step
-    public int minBranchLength = 5; // Minimum length of a branch before it can merge
-    public int maxBranches = 3; // Maximum number of simultaneous branches
+    public float pathBranchingProbability = 0.2f; 
+    public int minBranchLength = 5; 
+    public int maxBranches = 3; 
 
-    // Path generation variables (now declared as private member variables)
+
     private Vector2Int currentPosition;
     private int horizontalStraightCount;
     private int verticalStraightCount;
@@ -61,7 +60,7 @@ public class GridGenerator : MonoBehaviour
         public Vector2Int lastDirection;
         public bool justTurned;
         public int minStraightTilesAfterTurn;
-        public HashSet<Vector2Int> branchPathPositions; // Store positions for each branch (HashSet for efficiency)
+        public HashSet<Vector2Int> branchPathPositions;
 
         public PathBranch(Vector2Int startPosition)
         {
@@ -80,7 +79,6 @@ public class GridGenerator : MonoBehaviour
 
     void GeneratePath()
     {
-        // Initialize path generation (all variables are now local)
         pathPositions = new List<Vector2Int>();
         towerPlacementZones = new List<Vector2Int>();
         activeBranches.Clear();
@@ -107,7 +105,6 @@ public class GridGenerator : MonoBehaviour
                 }
                 else
                 {
-                    // Attempt branching while choosing a step
                     if (activeBranches.Count < maxBranches && UnityEngine.Random.value < pathBranchingProbability)
                     {
                         PathBranch newBranch = new PathBranch(branch.position);
@@ -116,7 +113,7 @@ public class GridGenerator : MonoBehaviour
                     }
 
                     TakeStep(nextSteps, branch); // TakeStep now handles merges internally
-                    AttemptMerging(branch); // Merging logic updated
+                    AttemptMerging(branch); 
                 }
             }
         }
@@ -214,7 +211,7 @@ public class GridGenerator : MonoBehaviour
 
     void TakeStep(List<Vector2Int> nextSteps, PathBranch branch)
     {
-        // Prioritize the left direction if available and close to the end
+        // Prioritize the left direction and close to the end
         Vector2Int chosenStep;
         if (branch.position.x == 1 && nextSteps.Contains(branch.position + Vector2Int.left))
         {
@@ -232,14 +229,14 @@ public class GridGenerator : MonoBehaviour
         var mergingBranch = activeBranches.FirstOrDefault(b => b != branch && b.branchPathPositions.Contains(chosenStep));
         if (mergingBranch != null)
         {
-            // Merge branches (updated logic)
+            // Merge branches 
             MergeBranches(branch, mergingBranch);
         }
         else
         {
             // Normal step
             branch.position = chosenStep;
-            branch.branchPathPositions.Add(chosenStep); // Using HashSet, no need to check for duplicates
+            branch.branchPathPositions.Add(chosenStep); // No need to check for duplicates
             branch.length++;
 
             UpdateStraightTileCounts(direction, branch);
@@ -272,27 +269,27 @@ public class GridGenerator : MonoBehaviour
     {
         if (branch.branchPathPositions.Count <= 1)
         {
-            Debug.Log($"Backtrack failed for branch at {branch.position} - no positions left to backtrack.");
+            //Debug.Log($"Backtrack failed for branch at {branch.position}");
             return false; // Cannot backtrack further
         }
 
-        // Store the last position for debugging
+        // Store for debugging
         Vector2Int lastPosition = branch.position;
 
-        // Remove the last position from the branch
+        // Remove from the branch
         branch.branchPathPositions.Remove(branch.branchPathPositions.Last());
 
-        // Check if the branch is now empty after removing the last position
+        // Check if the branch is now empty
         if (branch.branchPathPositions.Count == 0)
         {
-            Debug.Log($"Branch at {lastPosition} became empty after backtracking.");
+            //Debug.Log($"Branch at {lastPosition} became empty after backtracking.");
             return false; // Branch is empty
         }
 
-        // Update the current position of the branch to the new last position
+        // Update the current position of the branch
         branch.position = branch.branchPathPositions.Last();
 
-        // Reset turn flags and straight tile counts
+        // Reset counts
         branch.justTurned = false;
         branch.minStraightTilesAfterTurn = 0;
         if (branch.lastDirection.x != 0) branch.horizontalStraightCount = 0;
@@ -308,8 +305,8 @@ public class GridGenerator : MonoBehaviour
             branch.lastDirection = Vector2Int.zero;
         }
 
-        Debug.Log($"Backtracked from {lastPosition} to {branch.position}");
-        return true; // Successfully backtracked
+        //Debug.Log($"Backtracked from {lastPosition} to {branch.position}");
+        return true; // Successful backtrack
     }
 
     void UpdateStraightTileCounts(Vector2Int direction, PathBranch branch)
@@ -354,7 +351,7 @@ public class GridGenerator : MonoBehaviour
         {
             PathBranch newBranch = new PathBranch(branch.position);
             activeBranches.Add(newBranch);
-            Debug.Log($"New branch created at {newBranch.position}");
+            //Debug.Log($"New branch created at {newBranch.position}");
         }
     }
 
@@ -366,12 +363,10 @@ public class GridGenerator : MonoBehaviour
         {
             PathBranch otherBranch = activeBranches[i];
             if (otherBranch == branch || otherBranch.length < minBranchLength) continue;
-
-            // Check if any position in otherBranch is adjacent to the current branch's position
             if (otherBranch.branchPathPositions.Any(pos => IsAdjacent(branch.position, pos)))
             {
                 MergeBranches(branch, otherBranch);
-                Debug.Log($"Merged branches at {branch.position}");
+                //Debug.Log($"Merged branches at {branch.position}");
                 return; // Exit after merging
             }
         }
@@ -392,27 +387,21 @@ public class GridGenerator : MonoBehaviour
 
     void MergeBranches(PathBranch branch1, PathBranch branch2)
     {
-        // Merge the positions of the shorter branch into the longer one
+        // Merge the positions of the shorter branch
         PathBranch longerBranch = branch1.length > branch2.length ? branch1 : branch2;
         PathBranch shorterBranch = branch1.length > branch2.length ? branch2 : branch1;
-
-        // Add positions from shorter branch to the longer one (HashSet handles uniqueness)
         longerBranch.branchPathPositions.UnionWith(shorterBranch.branchPathPositions);
-
-        // Update the length of the longer branch
         longerBranch.length = longerBranch.branchPathPositions.Count;
-
-        // Remove the shorter branch
         activeBranches.Remove(shorterBranch);
     }
 
     void CombineBranchPositions()
     {
-        // Combine all branch positions into the main pathPositions list (more efficient with HashSet)
+        // Combine all branch positions into the main pathPositions list
         pathPositions.Clear();
         foreach (var branch in activeBranches)
         {
-            pathPositions.AddRange(branch.branchPathPositions); // Still need AddRange for the final list
+            pathPositions.AddRange(branch.branchPathPositions);
         }
     }
 
@@ -441,10 +430,17 @@ public class GridGenerator : MonoBehaviour
 
 
 
-    void CalculateShortestPath()
+    public void CalculateShortestPath()
     {
         shortestPath = Dijkstra.FindShortestPath(pathPositions, new Vector2Int(gridSizeX - 1, pathPositions[0].y), Vector2Int.zero);
     }
+
+    //public List<Vector2Int> CalculateShortestPath_cont(Vector2Int startPosition)
+    //{
+    //    // Use the provided startPosition instead of a fixed one
+    //    shortestPath = Dijkstra.FindShortestPath(pathPositions, startPosition, Vector2Int.zero);
+    //    return shortestPath;
+    //}
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -462,7 +458,7 @@ public class GridGenerator : MonoBehaviour
                 //{
                 GameObject cell = Instantiate(cellPrefab, cellPosition, Quaternion.identity, transform);
                 cell.name = $"Cell_{x}_{z}";
-                cell.tag = "grass";
+                // cell.tag = "green cell";
 
 
                 cell.GetComponent<Renderer>().material.color = Color.green; // Default tile color
@@ -476,12 +472,9 @@ public class GridGenerator : MonoBehaviour
                 //Instantiate(rockPrefab, cell.transform.position + Vector3.up * 1f, Quaternion.identity, cell.transform);
 
 
-                // Track cells in a dictionary for easy recoloring
+                // Track cells in a dictionary
                 gridCells[new Vector2Int(x, z)] = cell;
-
-                // Randomly decide to place grass or rocks
                 float randomChance = UnityEngine.Random.value;
-                // only place rocks on grass tiles
                 if (randomChance < 0.05f)
                 {
                     Instantiate(rockPrefab, cell.transform.position + Vector3.up * 0.5f, Quaternion.identity, cell.transform);
@@ -497,7 +490,7 @@ public class GridGenerator : MonoBehaviour
     {
         foreach (Transform child in transform)
         {
-            Destroy(child.gameObject); // Clear previous cells
+            Destroy(child.gameObject); 
         }
 
         gridCells.Clear();
@@ -509,12 +502,11 @@ public class GridGenerator : MonoBehaviour
             if (gridCells.TryGetValue(pos, out GameObject cell))
             {
                 //cell.GetComponent<Renderer>().material.color = Color.blue; // Blue for the path
-                //cell.GetComponent<Renderer>().material.color = new Color(0.5f, 0.35f, 0.05f);
                 cell.GetComponent<Renderer>().material.color = new Color(0.4f, 0.25f, 0.05f);
 
                 foreach (Transform child in cell.transform)
                 {
-                    Destroy(child.gameObject); // Destroy all child objects (grass, rocks, etc.)
+                    Destroy(child.gameObject); 
                 }
 
             }
@@ -531,7 +523,7 @@ public class GridGenerator : MonoBehaviour
                 // Remove grass or rocks from tower placement zones
                 foreach (Transform child in cell.transform)
                 {
-                    Destroy(child.gameObject); // Destroy all child objects (grass, rocks, etc.)
+                    Destroy(child.gameObject); 
                 }
             }
         }
@@ -556,16 +548,7 @@ public class GridGenerator : MonoBehaviour
             else
             {
 
-                ////Renderer renderer = cell.GetComponent<Renderer>();
-                //if (renderer != null)
-                //{
-                //    //renderer.material.color = Color.yellow; // Yellow for tower zones
-                //    renderer.material.color = new Color(0.0f, 0.5f, 0.0f);
-                //}
-                //else
-                //{
                 Debug.LogWarning($"No Renderer found on cell {cell.name}");
-                //}
             }
         }
     }
@@ -573,7 +556,6 @@ public class GridGenerator : MonoBehaviour
 
 
     
-    //##############################/##########################
 
     void AddAdjacentCells(Vector2Int position)
     {
@@ -588,7 +570,7 @@ public class GridGenerator : MonoBehaviour
         {
             Vector2Int adjacentCell = position + dir;
 
-            // Add sparsity by skipping some cells randomly
+            // Add sparsity
             if (UnityEngine.Random.Range(0, 4) == 0)
                 continue;
 
@@ -617,12 +599,11 @@ public class GridGenerator : MonoBehaviour
     {
         List<Vector2Int> steps = new List<Vector2Int>();
 
-        // Check moves in four cardinal directions
         Vector2Int[] directions = new Vector2Int[]
         {
-            new Vector2Int(1, 0),  // Move right
-            new Vector2Int(0, 1),  // Move up
-            new Vector2Int(0, -1), // Move down
+            new Vector2Int(1, 0), 
+            new Vector2Int(0, 1), 
+            new Vector2Int(0, -1),
         };
 
         foreach (Vector2Int direction in directions)
@@ -639,8 +620,7 @@ public class GridGenerator : MonoBehaviour
 
             if (newPos.x >= 0 && newPos.x < gridSizeX && newPos.y >= 0 && newPos.y < gridSizeZ)
             {
-                // Ensure we don't backtrack onto an existing path position
-                if (!pathPositions.Contains(newPos))
+                if (!pathPositions.Contains(newPos)) //so we dont go through the path
                 {
                     steps.Add(newPos);
                 }
