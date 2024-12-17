@@ -6,7 +6,8 @@
     features intuitive mechanics, polished visuals, and sound effects for an immersive experience.
 
 ### What makes this game unique?
-    Unlike classic tower defense games, ours incorporates a learning component. Players actively solve math problems to progress, 
+    Unlike classic tower defense games, ours incorporates a learning component. Players actively solve 
+    math problems to progress, 
     promoting education alongside entertainment.
 
 ## Key Features
@@ -14,13 +15,14 @@
 ### Educational Component - Math Challenges
     Players solve math problems during gameplay to earn points. Problems are categorized into:
     
-    Easy: Low rewards, suitable for quick answers.
-    Medium: Moderate difficulty with balanced rewards.
-    Hard: High difficulty with maximum rewards.
+    - Easy: Low rewards, suitable for quick answers.
+    - Medium: Moderate difficulty with balanced rewards.
+    - Hard: High difficulty with maximum rewards.
     The math-solving panel can be toggled on/off, ensuring it integrates seamlessly with the core gameplay.
     
-    Educational Value: This component promotes problem-solving and learning in an engaging way, transforming the game into an educational tool.
-### Dynamic Game Elements (Great Elements)
+    - Educational Value: This component promotes problem-solving and learning in an engaging way, transforming the 
+    game into an educational tool.
+### Dynamic Game Elements 
 #### Towers
     Towers can be dragged and dropped onto valid zones. Placement resets if invalid.
     Four types of towers: Weak, Medium, Strong, Ultimate, with each offering increased damage output.
@@ -28,16 +30,47 @@
 #### Enemies and Pathfinding
     Enemies traverse the grid using Dijkstra’s shortest path algorithm, dynamically adjusting to complex paths. 
     They spawn in waves, increasing in difficulty, keeping players challenged.
-    Enemy Health Bars: Visualize health for better clarity.
-    Enemy Types: Includes Orcs and Goblins with animations for movement and attacks.
+    - Enemy Health Bars: Visualize health for better clarity.
+    - Enemy Types: Includes Orcs and Goblins with animations for movement and attacks.
 #### Resources and UI
-    Balance Management: Points are updated dynamically based on math problems solved and towers placed.
-    Health Management: Health decreases when enemies reach the end.
-    Interactive UI: Real-time updates for health, balance, and tower availability.
+    - Balance Management: Points are updated dynamically based on math problems solved and towers placed.
+    - Health Management: Health decreases when enemies reach the end.
+    - Interactive UI: Real-time updates for health, balance, and tower availability.
 
-### Interactive UI:
+### Mechanics 
+    The mechanics are designed to be intuitive and engaging, with seamless integration of strategy and education:
+    
+    - Tower Placement: Drag-and-drop mechanics ensure smooth gameplay.
+    - Firing System: Towers detect enemies in range and fire projectiles dynamically.
+    - Resource Management: Players must balance solving math problems and placing/upgrading towers.
+    These mechanics create an enjoyable challenge while maintaining educational value.
     Math problems, balance, and health are displayed in real time.
     Buttons reflect availability based on the player's balance.
+
+### AI and Pathfinding 
+    Enemies use Dijkstra’s algorithm for optimal pathfinding. The AI ensures:
+    
+    - Enemies dynamically calculate the shortest route.
+    - Path complexity with branching paths makes the game challenging.
+    - Innovation: The AI adapts in real-time to grid changes, enhancing gameplay.
+
+### Physics and Animations 
+    - Projectile Physics: Projectiles inherit damage values and move smoothly towards targets.
+    - Enemy Animations: Enemies (Orcs, Goblins) use high-quality animations for movement and attacks.
+    - Tower Effects: Visual cues highlight tower placement and firing.
+
+### User Interface 
+    - Main Menu: Includes instructions on gameplay and math challenges.
+    - HUD: Displays health, balance, and math problem panel.
+    - Pause/Play Buttons: Players can pause/resume the game at any time.
+
+### Aesthetics and Sound Effects 
+    - Visuals: A combination of sci-fi and natural environments using assets like forests, rocks, and backgrounds.
+    - Sound Effects: Added for towers firing, enemies taking damage, and button clicks, creating an immersive experience.
+    
+
+### Performance 
+    The game runs smoothly at a consistent frame rate of 60 FPS on tested devices, ensuring a lag-free experience.
 
 ## Contribution by each Team Member:
 ### Ashwin Goel:
