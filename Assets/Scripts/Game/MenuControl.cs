@@ -18,7 +18,7 @@ public class MenuControl : MonoBehaviour
         playButton.onClick.AddListener(playGame);
     }
 
-    void pauseGame()
+    public void pauseGame()
     {
         isPaused = true;
         Time.timeScale = 0;
@@ -26,7 +26,7 @@ public class MenuControl : MonoBehaviour
         playButton.gameObject.SetActive(true);
     }
 
-    void playGame()
+    public void playGame()
     {
         isPaused = false;
         Time.timeScale = 1;

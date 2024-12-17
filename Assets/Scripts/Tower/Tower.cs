@@ -22,9 +22,6 @@ public class Tower : MonoBehaviour
         {
             Fire(target); // Fire at the enemy
             fireCooldown = 1f / fireRate; // Reset cooldown
-
-            // Reduce health through GameManager
-            ReduceHealthBasedOnTower();
         }
     }
 
@@ -52,21 +49,10 @@ public class Tower : MonoBehaviour
     {
         // Instantiate the projectile and set its target
         GameObject projectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
-        projectile.GetComponent<Projectile>().Initialize(target);
+        projectile.GetComponent<Projectile>().Initialize(target, damage);
 
         Vector3 newPosition = projectile.transform.position;
         newPosition.y = 1; // Update the Y coordinate
         projectile.transform.position = newPosition;
-    }
-
-    void ReduceHealthBasedOnTower()
-    {
-        // Reduce health using GameManager
-        GameManager gameManager = FindObjectOfType<GameManager>();
-        if (gameManager != null)
-        {
-            gameManager.ReduceGameHealth(damage);
-            Debug.Log($"Tower fired! Reduced health by {damage}.");
-        }
     }
 }

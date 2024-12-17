@@ -69,7 +69,7 @@ public static class MathProblemData
         ("What is the probability of rolling a 4 on a fair six-sided die?", "1/6"),
         ("If the perimeter of a rectangle is 28 and its length is 9, find its width.", "5"),
         ("Find the sum of angles in a pentagon.", "540"),
-        ("Solve: sqrt(49) + 3³ - 4²", "20"),
+        ("Solve: sqrt(49) + 3³ - 4²", "18"),
         ("If a circle has an area of 78.5 (π = 3.14), find its radius.", "5"),
         ("If x + 3y = 15 and x - y = 5, solve for y.", "2.5"),
         ("Solve for x: 2^(x+1) = 16.", "3"),

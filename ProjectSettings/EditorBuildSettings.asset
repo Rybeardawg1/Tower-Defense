@@ -8,4 +8,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Scene with enemies.unity
     guid: fdc786bd11094b542bf71f8ab3c40a5f
+  - enabled: 1
+    path: Assets/Scenes/StartScene.unity
+    guid: 3c1b2a92abc844ddcb28277e3d228bf9
   m_configObjects: {}
