@@ -43,6 +43,7 @@
     (Collaboratively)
     GridGeneration.cs
     Enemy.cs
+    Assets used - https://assetstore.unity.com/packages/3d/environments/sci-fi/tower-defence-sci-fi-turret-free-246331
 
 ### Somya Bharti :
     - Tower Drag-and-Drop System - Players can drag and drop tower buttons from the UI onto the map. 
@@ -59,3 +60,46 @@
     - Dynamic Tower UI: Designed UI buttons for different types of towers (weak, medium, strong, and ultimate). Buttons visually 
         represent the tower's strength and update dynamically when resources change.
       - Files: Tower Button Prefabs: Configured with images representing weak, medium, strong, and ultimate towers.
+
+### Mohammed Mohammed :
+    I was responsible for the procedural generation of the tower defense grid and the enemy AI. I developed the GridGenerator.cs script, 
+    which creates a dynamic, grid-based map with a winding path from right to left. This path generation includes configurable properties 
+    such as minimum and maximum lengths for straight segments, as well as the probability for the path to branch out and reconnect, creating a more complex layout.
+
+    To ensure enemies efficiently navigate these branching paths, I implemented Dijkstra's shortest path algorithm, allowing enemies 
+    to dynamically choose the shortest route to the end. I also handled core aspects of enemy management, including the queuing system for enemy 
+    summoning using Summoner.cs and Enemy_spawn_data.cs. Additionally, I was responsible for visual elements like the enemy health bars, background
+     music using MusicController.cs, the CamControl.cs script for camera movement, as well as the design of the surrounding terrain and environment.
+    
+    Scripts
+    
+    High contributions:
+    1.⁠ ⁠Enemy.cs
+    2.⁠ ⁠EnemyManager.cs
+    
+    Sole work: 
+    3.⁠ ⁠Enemy_spawn_data.CS
+    4.⁠ ⁠Summoner.cs
+    5.⁠ ⁠CamControl.cs
+    6.⁠ ⁠MusicController.cs
+    7.⁠ ⁠GridGenerator.cs
+    
+    
+    Assests:
+    1.⁠ ⁠Bush or Grass Bend as Detail Mesh
+    2.⁠ ⁠Environment Pack: Free Forest Sample
+    3.⁠ ⁠FREE Casual Game SFX Pack
+    4.⁠ ⁠Free Sound Effects Pack
+    5.⁠ ⁠Free Stylized Nature Environment
+    6.⁠ ⁠Grass Flowers Pack Free
+    7.⁠ ⁠Mountain Terrain, Rocks and Tree
+    8.⁠ ⁠Rock Package
+### Giang Nguyen 
+    I was mostly responsible for the UI, I created the HUD bar and a button that allows you to play and pause the game, as well as the start 
+    menu with the instructions at the beginning of the game. I also worked on the animation aspect of the enemies by getting assets from the Unity Assets 
+    Store and added animations for each enemy. I also implemented the wave management with enhanced difficulty for each passing wave. I was solely 
+    responsible for the MenuControl.cs file, and contributed partly to the EnemyManager.cs and Enemy.cs files.
+    Here is what I used: assets used: 
+    Orc: https://assetstore.unity.com/packages/3d/characters/3d-stylized-orc-animations-pbr-13-6k-faces-246181
+    Goblin: https://assetstore.unity.com/packages/3d/characters/humanoids/3d-stylized-goblin-animations-252473
+    Button and some UI: https://assetstore.unity.com/packages/2d/gui/icons/steampunkui-238976
