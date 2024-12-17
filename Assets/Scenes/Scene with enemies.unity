@@ -8201,7 +8201,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 774442bfe5e4c4b41a5c6e2eb9310592, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  waveText: {fileID: 0}
+  waveText: {fileID: 1936980219}
   gridGenerator: {fileID: 2033146973}
   nextEnemyID: 1
 --- !u!1 &1131484686
