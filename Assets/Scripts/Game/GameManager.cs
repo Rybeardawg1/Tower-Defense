@@ -10,11 +10,11 @@ public class GameManager : MonoBehaviour
     public Text healthText;
     public int money;
     public int health;
-    // Start is called before the first frame update
+    
     void Start()
     {
         money = 500;
-        health = 1000;
+        health = 150;
     }
 
     // Update is called once per frame
@@ -37,15 +37,15 @@ public class GameManager : MonoBehaviour
     {
         health -= hel;
 
-    if (health <= 0)
-    {
-        health = 0; // Ensure health doesn’t go below 0
-        healthText.text = $"Health: {health}";
-        Debug.Log("Player's health reached 0.");
-    }
-    else
-    {
-        healthText.text = $"Health: {health}";
-    }
+        if (health <= 0)
+        {
+            health = 0; // Ensure health doesn’t go below 0
+            healthText.text = $"Health: {health}";
+            Debug.Log("Player's health reached 0.");
+        }
+        else
+        {
+            healthText.text = $"Health: {health}";
+        }
     }
 }
