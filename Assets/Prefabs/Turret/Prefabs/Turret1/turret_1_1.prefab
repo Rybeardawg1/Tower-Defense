@@ -48,7 +48,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   range: 50
   fireRate: 1
-  projectilePrefab: {fileID: 7170531642356291939, guid: c835f14e34e9143ab92e1fc0047595d6, type: 3}
+  projectilePrefab: {fileID: 7170531642356291939, guid: 023fb6e2e0b044f5ab4e86993df16b4d, type: 3}
   damage: 5
 --- !u!1 &3264845603529743843
 GameObject:
