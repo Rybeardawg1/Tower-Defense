@@ -457,7 +457,7 @@ public class GridGenerator : MonoBehaviour
                 //{
                 GameObject cell = Instantiate(cellPrefab, cellPosition, Quaternion.identity, transform);
                 cell.name = $"Cell_{x}_{z}";
-                cell.tag = "green cell";
+                // cell.tag = "green cell";
 
 
                 cell.GetComponent<Renderer>().material.color = Color.green; // Default tile color
