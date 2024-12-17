@@ -20,9 +20,6 @@ public class EnemyManager : MonoBehaviour
 
     [Header("Enemy Spawn Settings")]
     public int nextEnemyID = 1;
-    
-
-
 
     void Awake()
     {
@@ -35,7 +32,6 @@ public class EnemyManager : MonoBehaviour
             }
         }
     }
-
 
     void Start()
     {
@@ -88,7 +84,6 @@ public class EnemyManager : MonoBehaviour
         }
     }
 
-
     IEnumerator SummonEnemyLoop()
     {
         while (true)
@@ -101,7 +96,7 @@ public class EnemyManager : MonoBehaviour
                 yield return new WaitForSeconds(1);
             }
 
-            enqueue_enemy_to_spawn(nextEnemyID); 
+            enqueue_enemy_to_spawn(nextEnemyID);
             float waitTime = GetRandomSummonTime();
 
             //float waitTime = GetRandomSummonTime(); // Get a new random time
@@ -112,7 +107,6 @@ public class EnemyManager : MonoBehaviour
     {
         return Random.Range(0.7f, 3f); // not working
     }
-
 
     IEnumerator EnemyLoop()
     {
@@ -129,7 +123,7 @@ public class EnemyManager : MonoBehaviour
     public static void enqueue_enemy_to_spawn(int enemy_ID)
     {
 
-        enemies_to_spawn.Enqueue(enemy_ID); 
+        enemies_to_spawn.Enqueue(enemy_ID);
 
     }
 
@@ -151,12 +145,11 @@ public class EnemyManager : MonoBehaviour
         {
             if (enemy.isAlive)
             {
-                enemy.Perform_movement(); 
+                enemy.Perform_movement();
             }
         }
 
     }
-
 
     void RemoveEnemies()
     {

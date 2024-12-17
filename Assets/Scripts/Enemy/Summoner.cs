@@ -5,13 +5,12 @@ using UnityEngine.Pool;
 
 public class Summoner : MonoBehaviour
 {
-    public static Dictionary<int, GameObject> enemy_prefabs; 
-    public static Dictionary<int, Queue<Enemy>> enemy_pools; 
+    public static Dictionary<int, GameObject> enemy_prefabs;
+    public static Dictionary<int, Queue<Enemy>> enemy_pools;
     public static List<Enemy> enemies_alive;
     public static List<Transform> enemies_alive_transform;
-
     private static bool initialized;
-    
+
     public static void Init()
     {
         if (!initialized)
@@ -92,8 +91,6 @@ public class Summoner : MonoBehaviour
 
         return Spawned_enemy;
     }
-
-
 
     // now removing the enemy from the scene
     public static void remove_enemy(Enemy enemy_to_kill)

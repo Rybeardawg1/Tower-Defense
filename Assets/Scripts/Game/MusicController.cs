@@ -9,7 +9,7 @@ public class MusicController : MonoBehaviour
 
     void Awake()
     {
-        
+
     }
 
     void Start()
