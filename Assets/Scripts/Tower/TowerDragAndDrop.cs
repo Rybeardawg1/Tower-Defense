@@ -15,6 +15,7 @@ public class TowerDragAndDrop : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     private GridGenerator gridGenerator;  // Reference to the GridGenerator for valid zones
 
     public int towerCost = 100;       // Tower cost to place
+    private Button towerButton;       // Reference to the Button component
 
     private void Awake()
     {
@@ -25,6 +26,8 @@ public class TowerDragAndDrop : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         originalPosition = rectTransform.position; // Save the button's original position
         originalAnchoredPosition = rectTransform.anchoredPosition; // Anchored position
         gridGenerator = FindObjectOfType<GridGenerator>(); // Find the grid generator
+
+        towerButton = GetComponent<Button>(); // Get the Button component
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -81,6 +84,13 @@ public class TowerDragAndDrop : MonoBehaviour, IBeginDragHandler, IDragHandler, 
 
                 // Instantiate the tower at the position
                 Instantiate(towerPrefab, position, Quaternion.identity);
+
+                // Disable the button if balance is insufficient after placement
+                if (gameManager.money < towerCost && towerButton != null)
+                {
+                    towerButton.interactable = false;
+                    Debug.Log($"{gameObject.name} button disabled: Not enough balance.");
+                }
             }
             else
             {
