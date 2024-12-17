@@ -143,7 +143,7 @@ public class EnemyManager : MonoBehaviour
     {
         foreach (var enemy in Summoner.enemies_alive)
         {
-            if (enemy.isAlive)
+            if (enemy.isAlive && enemy != null)
             {
                 enemy.Perform_movement();
             }
