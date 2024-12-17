@@ -103,3 +103,19 @@
     Orc: https://assetstore.unity.com/packages/3d/characters/3d-stylized-orc-animations-pbr-13-6k-faces-246181
     Goblin: https://assetstore.unity.com/packages/3d/characters/humanoids/3d-stylized-goblin-animations-252473
     Button and some UI: https://assetstore.unity.com/packages/2d/gui/icons/steampunkui-238976
+
+### Ryan Barry
+    As part of enhancing the game environment and improving gameplay clarity, I worked on the following updates:
+
+    Space Background:
+    I added a space-themed background to the game scene, creating a visually immersive and futuristic atmosphere.
+    This background serves as a static visual layer, complementing the overall theme of the game and engaging the player.
+    
+    Tower Cells for Strategic Placement:
+    I implemented tower cells to clearly define valid grid positions where towers can be placed.
+    These cells are visually highlighted, helping players strategize their tower placements effectively based on the enemy path.
+    Implementation Details
+    Files worked on: GridGenerator.cs, EnemyManager.cs:
+
+
+
