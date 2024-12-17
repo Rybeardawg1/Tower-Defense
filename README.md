@@ -25,9 +25,16 @@
     Towers can be dragged and dropped onto valid zones. Placement resets if invalid.
     Four types of towers: Weak, Medium, Strong, Ultimate, with each offering increased damage output.
     Towers fire projectiles at enemies within range, with projectiles carrying damage values based on tower strength.
-### Resource and Health Management:
-    Balance (points) and health are dynamically updated in the UI.
-    Buttons for towers are disabled when the player cannot afford a tower.
+#### Enemies and Pathfinding
+    Enemies traverse the grid using Dijkstra’s shortest path algorithm, dynamically adjusting to complex paths. 
+    They spawn in waves, increasing in difficulty, keeping players challenged.
+    Enemy Health Bars: Visualize health for better clarity.
+    Enemy Types: Includes Orcs and Goblins with animations for movement and attacks.
+#### Resources and UI
+    Balance Management: Points are updated dynamically based on math problems solved and towers placed.
+    Health Management: Health decreases when enemies reach the end.
+    Interactive UI: Real-time updates for health, balance, and tower availability.
+
 ### Interactive UI:
     Math problems, balance, and health are displayed in real time.
     Buttons reflect availability based on the player's balance.
