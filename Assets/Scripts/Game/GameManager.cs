@@ -16,7 +16,7 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        money = 180;
+        money = 100;
         health = 100;
         isGameRunning = true;
         RestartPanel.gameObject.SetActive(false);
