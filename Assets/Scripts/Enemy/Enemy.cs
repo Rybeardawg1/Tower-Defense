@@ -7,13 +7,13 @@ using UnityEngine.UI;
 public class Enemy : MonoBehaviour
 {
     public int Node_index; // for pathfinding
-    public float max_health;
+    public float max_health = 100;
     public float speed;
     public int ID;
     public bool isAlive = true;
     private Animator animation_controller;
     private CharacterController character_controller;
-    public float health;
+    public float health = 100;
 
 
     [Header("Sound Effects")]
@@ -56,6 +56,7 @@ public class Enemy : MonoBehaviour
     }
     void Start()
     {
+        max_health = 100;
         health = max_health;
         animation_controller = GetComponent<Animator>();
         character_controller = GetComponent<CharacterController>();
@@ -70,15 +71,15 @@ public class Enemy : MonoBehaviour
 
     void Update()
     {
-            if (health <= 0 && isAlive)
-            {
-                health = 0;
-                isAlive = false;
-                animation_controller.SetBool("Die", true);
-                animation_controller.SetBool("Walk", false);
-                gameManager.UpdateBalance(20);
-                Destroy(gameObject, 2.5f);
-            }
+        if (health <= 0 && isAlive)
+        {
+            health = 0;
+            isAlive = false;
+            animation_controller.SetBool("Die", true);
+            animation_controller.SetBool("Walk", false);
+            gameManager.UpdateBalance(20);
+            Destroy(gameObject, 2.5f);
+        }
         //else 
         //{
         //    animation_controller.SetBool("Die", false);
@@ -87,21 +88,18 @@ public class Enemy : MonoBehaviour
 
         // Update health bar value
         healthBar.UpdateHealth(health, max_health);
-        Perform_movement();
+        if (gameObject && gameObject.GetComponent<Enemy>() != null) Perform_movement();
     }
 
 
     ////////// MM: new (revise later )
     public void Perform_movement()
     {
-        if (isAlive)
+        if (isAlive && gameObject.GetComponent<Enemy>() != null)
         {
             Move_on_path();
         }
     }
-
-
-
 
     void Move_on_path()
     {
@@ -150,7 +148,8 @@ public class Enemy : MonoBehaviour
                 sfx_source.PlayOneShot(hit_sound);
             }
 
-            if(health <= 0){
+            if (health <= 0)
+            {
                 health = 0;
             }
         }
