@@ -8,9 +8,10 @@ public class Projectile : MonoBehaviour
     public int damage = 1; // Damage dealt to enemies
     public GameObject target;
 
-    public void Initialize(GameObject enemyTarget)
+    public void Initialize(GameObject enemyTarget, int towerDamage)
     {
         target = enemyTarget;
+        damage = towerDamage;
     }
 
     public void Awake()
